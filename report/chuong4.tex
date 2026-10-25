@@ -1,0 +1,27 @@
+\chapter{Đánh giá Độ phức tạp Thuật toán và Kết quả Thực nghiệm}
+\label{chap:chuong4}
+
+\textit{Phụ trách biên soạn chính: Phạm Đức Cường (M5 - QA \& Kiểm thử).}
+
+\section{Phân tích Độ phức tạp Thuật toán}
+\begin{table}[htbp]
+\centering
+\caption{Bảng tổng hợp độ phức tạp thời gian và không gian của các giải thuật}
+\label{tab:complexity}
+\begin{tabular}{l c c c}
+\toprule
+\textbf{Thao tác} & \textbf{Trung bình} & \textbf{Xấu nhất} & \textbf{Bộ nhớ phụ trợ} \\
+\midrule
+Chèn sách (Insert) & $O(\log N)$ & $O(N)$ & $O(h)$ (ngăn xếp đệ quy) \\
+Tìm theo ISBN (Search) & $O(\log N)$ & $O(N)$ & $O(h)$ \\
+Tìm theo Tên/Tác giả & $O(N)$ & $O(N)$ & $O(h)$ \\
+Xóa sách (Erase) & $O(\log N)$ & $O(N)$ & $O(h)$ \\
+Duyệt In-order (LNR) & $O(N)$ & $O(N)$ & $O(h)$ \\
+Giải phóng cây (Clear) & $O(N)$ & $O(N)$ & $O(h)$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Danh mục Ca Kiểm thử (Test Cases)}
+\section{Kết quả Chạy Thực nghiệm trên Bộ Dữ liệu Mẫu}
+\section{Đánh giá Giới hạn của Cây BST và Hướng Cải tiến (Cây AVL / Red-Black Tree)}

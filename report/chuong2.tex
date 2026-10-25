@@ -1,0 +1,26 @@
+\chapter{Thiết kế Cấu trúc Dữ liệu và Giải thuật Cây BST}
+\label{chap:chuong2}
+
+\textit{Phụ trách biên soạn chính: Phan Thế Hiệp (M2 - BST và Thuật toán).}
+
+\section{Tổng quan về Cây Nhị phân Tìm kiếm (BST)}
+\subsection{Định nghĩa toán học và Tính chất}
+Cây nhị phân tìm kiếm $T$ là một cây nhị phân hữu hạn, trong đó mỗi node chứa một khóa $k$ thỏa mãn điều kiện:
+\begin{itemize}
+    \item Mọi khóa trong cây con trái của node $u$ đều nhỏ hơn khóa tại $u$: $\forall x \in LeftSubtree(u), key(x) < key(u)$.
+    \item Mọi khóa trong cây con phải của node $u$ đều lớn hơn khóa tại $u$: $\forall y \in RightSubtree(u), key(y) > key(u)$.
+    \item Cả cây con trái và cây con phải cũng là các cây nhị phân tìm kiếm.
+\end{itemize}
+
+\section{Thiết kế Cấu trúc Dữ liệu Sách (Book) và Node Cây (BSTNode)}
+\subsection{Cấu trúc thực thể Book}
+Khóa chính so sánh là chuỗi \texttt{ISBN}.
+\subsection{Cấu trúc Node cây (BSTNode)}
+Node lưu trữ đối tượng \texttt{Book} và hai con trỏ \texttt{left}, \texttt{right}.
+
+\section{Các Giải thuật Thao tác Cốt lõi}
+\subsection{Giải thuật Chèn (Insert)}
+\subsection{Giải thuật Tìm kiếm nhị phân (Search)}
+\subsection{Giải thuật Xóa Node (Erase) với 3 trường hợp}
+\subsection{Các giải thuật Duyệt cây (NLR, LNR, LRN)}
+\subsection{Giải thuật Giải phóng Bộ nhớ đệ quy (Clear / Destructor)}
