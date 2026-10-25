@@ -1,6 +1,6 @@
 Task ID,Summary,Description,Assignee,Due Date,Status,Progress
-DSA-01,Chốt yêu cầu và phạm vi,"Chốt ISBN là khóa, trường dữ liệu, quy tắc tìm/xóa tên tác giả và tiêu chí nghiệm thu",Trần Ninh Thuận (M1),2026-10-24,To Do,0%
-DSA-02,Tạo repository và quy tắc Git,"README, .gitignore, nhánh tính năng, hướng dẫn commit cá nhân",Trần Ninh Thuận (M1),2026-10-24,To Do,0%
+DSA-01,Chốt yêu cầu và phạm vi,"Chốt ISBN là khóa, trường dữ liệu, quy tắc tìm/xóa tên tác giả và tiêu chí nghiệm thu",Trần Ninh Thuận (M1),2026-10-24,Done,100%
+DSA-02,Tạo repository và quy tắc Git,"README, .gitignore, nhánh tính năng, hướng dẫn commit cá nhân",Trần Ninh Thuận (M1),2026-10-24,Done,100%
 DSA-03,Thiết kế mô hình Book và API,"Chốt trường Book, so sánh ISBN và interface cho BST",Phan Thế Hiệp (M2),2026-10-25,To Do,0%
 DSA-04,Cài đặt BST cơ bản,"Insert, search theo ISBN, xử lý ISBN trùng",Phan Thế Hiệp (M2),2026-10-26,To Do,0%
 DSA-05,Cài đặt xóa BST,"Xóa node lá, một con, hai con và node gốc; giải phóng node đúng cách",Phan Thế Hiệp (M2),2026-10-26,To Do,0%
@@ -9,11 +9,11 @@ DSA-07,Cài đặt menu và nghiệp vụ CRUD,"Thêm, sửa, tìm ISBN, tra c�
 DSA-08,Cài đặt persistence,"Nạp/lưu CSV hoặc text, xử lý file thiếu và bản ghi lỗi",Lê Cường Bảo (M4),2026-10-27,To Do,0%
 DSA-09,Chuẩn bị dữ liệu mẫu,"Tạo dữ liệu có ISBN liên tiếp, trùng tên/tác giả và dữ liệu biên",Lê Cường Bảo (M4),2026-10-27,To Do,0%
 DSA-10,Soạn ca kiểm thử và ghi kết quả,"Ca CRUD, xóa đủ trường hợp, tra cứu, thứ tự, persistence và lỗi đầu vào",Phạm Đức Cường (M5),2026-10-28,To Do,0%
-DSA-11,Viết Chương 1,"Nghiệp vụ, yêu cầu chức năng/phi chức năng, use case và phạm vi",Trần Ninh Thuận (M1),2026-10-29,To Do,0%
+DSA-11,Viết Chương 1,"Nghiệp vụ, yêu cầu chức năng/phi chức năng, use case và phạm vi",Trần Ninh Thuận (M1),2026-10-29,Done,100%
 DSA-12,Viết Chương 2,"BST, API, thuật toán, giả mã, ví dụ và phân tích lựa chọn",Phan Thế Hiệp (M2),2026-10-29,To Do,0%
 DSA-13,Viết Chương 3,"Kiến trúc, cài đặt C++, xử lý lỗi, persistence và giao diện",Huỳnh Văn Lĩnh (M3),2026-10-30,To Do,0%
 DSA-14,Viết Chương 4 và phân tích,"Độ phức tạp, môi trường chạy, bảng kết quả và hạn chế",Phạm Đức Cường (M5),2026-10-30,To Do,0%
-DSA-15,Hoàn thiện LaTeX 40-50 trang,"Ghép chương, mục lục, nguồn tham khảo, phụ lục phân công",Trần Ninh Thuận (M1),2026-10-30,To Do,0%
+DSA-15,Hoàn thiện LaTeX 40-50 trang,"Ghép chương, mục lục, nguồn tham khảo, phụ lục phân công",Trần Ninh Thuận (M1),2026-10-30,In Progress,60%
 DSA-16,Làm slide và kịch bản demo,"Chuẩn bị dữ liệu demo và phân đoạn trình bày cho cả 5 người",Phạm Đức Cường (M5),2026-10-30,To Do,0%
 DSA-17,Tổng duyệt và đóng gói,"Rà README, bản build, file dữ liệu, báo cáo, slide và bằng chứng Jira/Git",Trần Ninh Thuận (M1),2026-10-31,To Do,0%
 DSA-18,Hoàn thiện quy trình yêu cầu mượn sách,"Độc giả gửi yêu cầu từ danh mục; yêu cầu chờ duyệt giữ chỗ sách; admin duyệt hoặc từ chối; duyệt tạo phiếu hạn trả 14 ngày; cập nhật lịch sử và trạng thái giữa các tab cùng trình duyệt. Mã nguồn: web/app.js, web/index.html, web/styles.css; hướng dẫn: web/README.md",Cả nhóm,2026-10-25,Done,100%
