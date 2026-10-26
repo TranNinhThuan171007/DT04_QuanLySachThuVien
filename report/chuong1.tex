@@ -1,0 +1,76 @@
+\chapter{Tổng quan Đề tài và Phân tích Yêu cầu}
+\label{chap:chuong1}
+
+\section{Đặt vấn đề và Tính cấp thiết của đề tài}
+Trong thời đại chuyển đổi số hiện nay, công tác quản lý biên mục sách và phục vụ bạn đọc tại các thư viện đòi hỏi tốc độ xử lý nhanh, chính xác và tính toàn vẹn dữ liệu cao. Với quy mô hàng chục nghìn bản ghi sách, các cấu trúc dữ liệu tuyến tính truyền thống như mảng (Array) hay danh sách liên kết (Linked List) bộc lộ nhiều điểm hạn chế:
+\begin{itemize}
+    \item \textbf{Mảng tuyến tính:} Tìm kiếm tuần tự tiêu tốn $O(N)$. Mặc dù mảng đã sắp xếp có thể tìm nhị phân trong $O(\log N)$, thao tác chèn hoặc xóa lại đòi hỏi chi phí dịch chuyển bộ nhớ lên tới $O(N)$.
+    \item \textbf{Danh sách liên kết:} Cung cấp khả năng mở rộng kích thước linh hoạt nhưng việc truy xuất ngẫu nhiên là không thể, buộc phải duyệt tuần tự từ đầu danh sách với độ phức tạp $O(N)$.
+\end{itemize}
+
+\textbf{Cây nhị phân tìm kiếm (Binary Search Tree - BST)} là một cấu trúc dữ liệu phi tuyến tính lý tưởng, kết hợp ưu điểm của cả hai cấu trúc trên:
+\begin{itemize}
+    \item Cho phép tổ chức các phần tử có thứ tự dựa trên trường khóa định danh duy nhất (ISBN).
+    \item Đạt tốc độ trung bình $O(\log N)$ cho các thao tác tra cứu, thêm mới và xóa phần tử (tương đương chiều cao cây $h \approx \log_2 N$).
+    \item Xuất toàn bộ danh mục theo thứ tự khóa tăng dần một cách tự nhiên thông qua phép duyệt In-order (LNR) với độ phức tạp tuyến tính tối ưu $O(N)$ mà không cần tốn chi phí sắp xếp ngoại lai.
+\end{itemize}
+
+\section{Khảo sát Hiện trạng và Quy trình Nghiệp vụ Thư viện}
+Hệ thống quản lý danh mục sách thư viện bao gồm 4 luồng nghiệp vụ cốt lõi:
+\begin{enumerate}
+    \item \textbf{Nghiệp vụ tiếp nhận sách mới:} Kiểm tra tính hợp lệ của mã chuẩn quốc tế ISBN. Nếu ISBN chưa tồn tại trong hệ thống, cán bộ thư viện thu thập đầy đủ thông tin (Tên sách, Tác giả, Nhà xuất bản, Năm xuất bản, Thể loại) và tiến hành nạp sách vào cây BST.
+    \item \textbf{Nghiệp vụ tra cứu danh mục:} Hỗ trợ hai phương thức: tra cứu chính xác theo ISBN (dùng tìm kiếm nhị phân $O(h)$) và tra cứu tương đối theo Tên sách hoặc Tác giả (duyệt cây $O(N)$ gom kết quả).
+    \item \textbf{Nghiệp vụ cập nhật và thanh lý (Xóa sách):} Cho phép sửa thông tin mô tả sách; xóa sách khỏi hệ thống với thuật toán xóa node xử lý triệt để 3 trường hợp (node lá, node 1 con, node 2 con) và giải phóng bộ nhớ.
+    \item \textbf{Nghiệp vụ lưu trữ bền vững (Persistence):} Nạp dữ liệu tự động từ tệp CSV vào cây khi khởi động và ghi lại tệp CSV khi kết thúc phiên làm việc.
+\end{enumerate}
+
+\section{Phân tích Yêu cầu Hệ thống}
+
+\subsection{Yêu cầu Chức năng (Functional Requirements)}
+Hệ thống được thiết kế đáp ứng đầy đủ các yêu cầu chức năng sau:
+\begin{table}[htbp]
+\centering
+\caption{Bảng đặc tả Yêu cầu Chức năng}
+\label{tab:functional_req}
+\small
+\begin{tabularx}{\textwidth}{l l X c}
+\toprule
+\textbf{Mã FR} & \textbf{Tên chức năng} & \textbf{Mô tả chi tiết} & \textbf{Ưu tiên} \\
+\midrule
+FR-01 & Cấu hình môi trường & Hỗ trợ hiển thị tiếng Việt UTF-8 trên Console dòng lệnh. & Bắt buộc \\
+FR-02 & Thêm sách mới & Nhập thông tin, kiểm tra khóa ISBN trùng lặp, chèn node vào BST. & Bắt buộc \\
+FR-03 & Tìm kiếm theo ISBN & Tìm kiếm nhị phân trên cây BST trong $O(h)$. & Bắt buộc \\
+FR-04 & Tra cứu Tên / Tác giả & Duyệt toàn bộ cây tìm chuỗi con khớp nhan đề/tác giả. & Bắt buộc \\
+FR-05 & Cập nhật sách & Chỉnh sửa thông tin sách theo mã ISBN xác định. & Bắt buộc \\
+FR-06 & Xóa sách khỏi BST & Xóa node xử lý 3 trường hợp, thu hồi con trỏ động an toàn. & Bắt buộc \\
+FR-07 & Xuất danh mục LNR & Duyệt giữa, xuất danh mục tăng dần theo ISBN dưới dạng bảng. & Bắt buộc \\
+FR-08 & Duyệt NLR và LRN & Duyệt tiền thứ tự và hậu thứ tự phục vụ minh họa cấu trúc. & Mở rộng \\
+FR-09 & Nạp dữ liệu CSV & Đọc tệp CSV, lọc bản ghi lỗi, tái thiết lập cây BST. & Bắt buộc \\
+FR-10 & Lưu dữ liệu CSV & Tuần tự hóa toàn bộ sách trên cây ra tệp CSV lưu trữ. & Bắt buộc \\
+FR-11 & Hủy cây an toàn & Duyệt hậu thứ tự giải phóng triệt để bộ nhớ khi thoát. & Bắt buộc \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Yêu cầu Phi chức năng (Non-Functional Requirements)}
+\begin{enumerate}
+    \item \textbf{Hiệu năng thuật toán:} Các thao tác cơ bản trên cây BST phải đạt thời gian thực thi trung bình $O(\log N)$. Phép duyệt LNR xuất danh mục đạt $O(N)$.
+    \item \textbf{Quản lý bộ nhớ an toàn:} Cấp phát động đi kèm thu hồi triệt để; không rò rỉ bộ nhớ (Zero Memory Leak), không xảy ra lỗi phân đoạn (Segmentation Fault).
+    \item \textbf{Tính toàn vẹn dữ liệu:} Kiểm tra ràng buộc dữ liệu đầu vào (ISBN không rỗng, năm xuất bản nguyên dương, xử lý lỗi nhập liệu an toàn).
+    \item \textbf{Khả năng bảo trì mã nguồn:} Mã nguồn chuẩn C++17, cấu trúc module hóa phân tầng rõ ràng (Model, BST, Storage, UI).
+\end{enumerate}
+
+\section{Mô hình hóa Use Case Hệ thống}
+Hệ thống phục vụ hai nhóm đối tượng chính: \textbf{Quản thư (Admin)} và \textbf{Độc giả (Reader)}. Quản thư sở hữu toàn quyền quản trị danh mục (thêm, sửa, xóa, duyệt cây, đọc/ghi tệp). Độc giả có quyền tra cứu thông tin sách theo mã ISBN, tên sách hoặc tác giả và xem danh mục hiển thị tăng dần.
+
+\section{Phạm vi Đề tài và Tiêu chí Nghiệm thu}
+\begin{itemize}
+    \item \textbf{Phạm vi:} Ứng dụng Console C++ hoàn chỉnh và giao diện Web mô phỏng nghiệp vụ mượn sách.
+    \item \textbf{Tiêu chí nghiệm thu:}
+    \begin{itemize}
+        \item Cây BST quản lý chính xác theo khóa duy nhất ISBN.
+        \item Thao tác xóa xử lý đúng mọi trường hợp cấu trúc node.
+        \item Lưu trữ và phục hồi tệp CSV đầy đủ thuộc tính sách.
+        \item Báo cáo học thuật đạt chuẩn độ dài 40--50 trang.
+    \end{itemize}
+\end{itemize}
