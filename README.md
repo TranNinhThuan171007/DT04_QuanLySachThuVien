@@ -33,28 +33,29 @@ scripts/              Lệnh hỗ trợ build hoặc chuẩn hóa dữ liệu
 
 ## Git và cộng tác
 
-- Mỗi người cấu hình `user.name`/`user.email` Git của chính mình và tự tạo commit cho phần việc mình thực hiện.
-- Tạo nhánh theo tính năng, ví dụ `feature/bst-core`, `feature/file-storage`, `docs/planning`; tích hợp qua pull request hoặc review chéo.
-- Dùng Jira theo yêu cầu môn học; `docs/plan/backlog.csv` là nguồn công việc ban đầu để nhập/đối chiếu. Cập nhật Jira ít nhất mỗi ngày trong tuần cuối.
-- Commit nhỏ, nêu rõ hành động và mã task, ví dụ `feat(DSA-04): add ISBN search`.
+- Trước khi commit, mỗi thành viên đặt tên và email Git theo tài khoản của mình để lịch sử ghi đúng người thực hiện.
+- Làm việc trên nhánh riêng theo nhiệm vụ, rồi mở pull request để nhóm xem lại trước khi nhập vào `main`.
+- Danh sách việc ban đầu nằm trong `docs/plan/backlog.csv`. Nhóm dùng Jira để theo dõi tiến độ và cập nhật khi trạng thái công việc thay đổi.
+- Viết tiêu đề commit ngắn, nêu việc đã làm và mã task, chẳng hạn `feat(DSA-04): add ISBN search`.
 
 ## Chạy và triển khai bản demo web
 
-Mở `web/index.html` trong trình duyệt hiện đại để chạy demo cục bộ. Không cần framework hoặc máy chủ. Nếu bật GitHub Pages với nguồn **GitHub Actions**, workflow `.github/workflows/pages.yml` sẽ triển khai nội dung `web/` mỗi khi có thay đổi trên `main`.
+Để xem demo trên máy, mở `web/index.html` trong trình duyệt. Cài thêm thư viện hoặc công cụ build là không cần thiết. Khi GitHub Pages được đặt dùng **GitHub Actions**, workflow `.github/workflows/pages.yml` sẽ đăng nội dung trong `web/` sau mỗi lần cập nhật `main`.
 
-Demo lưu danh mục và trạng thái trong `localStorage` của trình duyệt. Đăng nhập/phân quyền cũng mô phỏng phía trình duyệt; ứng dụng chưa có backend, cơ sở dữ liệu dùng chung hay bảo vệ dữ liệu thật. Vì vậy GitHub Pages chỉ phù hợp để trình diễn, không dùng vận hành thư viện thực tế.
+Demo lưu dữ liệu riêng trong trình duyệt đang mở. Đăng nhập và phân quyền chỉ phục vụ trình diễn; hiện chưa có máy chủ hay cơ sở dữ liệu chung. Không dùng bản này để quản lý dữ liệu thư viện thật.
 
-Mã C++ trong `src/` là phần đồ án BST. Build thủ công phần model/BST/test với C++17:
+Phần C++ hiện có mô hình sách và các thao tác BST cùng chương trình kiểm thử. Trên Windows, tạo thư mục `build` rồi biên dịch bằng MinGW g++:
 
-```sh
+```powershell
+New-Item -ItemType Directory -Force build | Out-Null
 g++ -std=c++17 -Wall -Wextra -Wpedantic src/models/Book.cpp src/bst/BST.cpp tests/test_bst.cpp -o build/test_bst
 ```
 
-Chương trình menu console và module persistence chưa được tích hợp đầy đủ; không xem lệnh trên là bản build ứng dụng hoàn chỉnh.
+Lệnh này tạo chương trình kiểm tra BST. Menu console và phần đọc/ghi tệp chưa được tích hợp.
 
 ## Nộp bài
 
-Hạn theo đề: **01/11/2026**. Trước khi nộp, nhóm cần hoàn tất chương trình, báo cáo 40–50 trang, slide, kịch bản demo, dữ liệu mẫu và rà soát lịch sử đóng góp Git/Jira. Xem checklist trong `docs/plan/ke-hoach-tong-the.md`.
+Hạn nộp theo đề là **01/11/2026**. Trước ngày nộp, nhóm hoàn thiện chương trình, báo cáo 40–50 trang, slide, dữ liệu mẫu và kịch bản demo; sau đó đối chiếu phần đóng góp với lịch sử Git và Jira. Checklist nằm trong `docs/plan/ke-hoach-tong-the.md`.
 
 ## Nhóm thực hiện
 
