@@ -8,7 +8,7 @@ Repo có workflow GitHub Pages tại `.github/workflows/pages.yml`. Chọn **Set
 
 ### Vercel
 
-Khi import repo vào Vercel, đặt **Root Directory** thành `web`, chọn **Other** làm framework preset, để trống Build Command và đặt Output Directory là `.`. Không cần cài dependencies. Tệp `web/vercel.json` cấu hình rewrite để các URL được tải lại đúng trang. Sau khi kết nối GitHub, mỗi lần push lên `main` sẽ tạo deployment production; pull request tạo preview deployment.
+Khi import repo vào Vercel, dùng **Root Directory** mặc định là thư mục gốc, chọn **Other** làm framework preset và để trống Build Command. Tệp `vercel.json` ở thư mục gốc xuất bản nội dung `web/`; không cần cài dependencies. Sau khi kết nối GitHub, mỗi lần push lên `main` sẽ tạo deployment production; pull request tạo preview deployment.
 
 Ứng dụng chỉ lưu dữ liệu trên trình duyệt và không có backend; dùng cho trình diễn, không dùng với dữ liệu thư viện thật.
 
