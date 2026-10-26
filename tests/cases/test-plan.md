@@ -19,6 +19,11 @@
 | IO-02 | File không tồn tại/không mở được | Báo lỗi rõ, dữ liệu đang có không bị mất |
 | IO-03 | Dòng thiếu trường hoặc năm sai | Báo dòng/lỗi; xử lý theo chính sách đã chốt |
 | UI-01 | Nhập chữ ở menu số, chuỗi rỗng, ISBN sai | Báo lỗi và tiếp tục ở luồng nhập an toàn |
+| IO-04 | CSV có dấu phẩy/ngoặc kép trong trường | Nạp lại đúng nội dung sau khi lưu |
+| IO-05 | CSV có ISBN sai, header sai hoặc dấu ngoặc kép chưa đóng | Báo dòng/lỗi; không ghi đè tệp nguồn |
+| ISBN-01 | Nhập ISBN-10 và ISBN-13 tương đương | Chuẩn hóa thành cùng một khóa; không tạo bản ghi trùng |
+| SEARCH-03 | Tìm tên/tác giả tiếng Việt khác kiểu viết hoa | Trả đúng bản ghi có dấu |
+| IO-06 | Lưu danh sách có ISBN trùng ở dạng ISBN-10 và ISBN-13 | Từ chối ghi và giữ nguyên tệp cũ |
 
 ## Ghi kết quả thực tế
 

@@ -29,12 +29,12 @@ graph TD
 
 | Module | Thư mục mã nguồn | Thành viên phụ trách | Trách nhiệm chính |
 |---|---|---|---|
-| **Entry Point** | `src/main.cpp` | Trần Ninh Thuận (M1) | Điểm khởi nhập, cấu hình console UTF-8, khởi động vòng lặp chương trình. |
-| **Model** | `src/models/Book.h`, `.cpp` | Phan Thế Hiệp (M2) | Thực thể Sách: ISBN, Tên, Tác giả, NXB, Năm, Thể loại; các toán tử so sánh `<, >, ==`. |
-| **BST Core** | `src/bst/BST.h`, `BSTNode.h`, `.cpp` | Phan Thế Hiệp (M2) | Quản lý cây BST theo ISBN: `insert`, `search`, `erase` (đủ 3 trường hợp), duyệt `LNR/NLR/LRN`, giải phóng bộ nhớ. |
-| **Console UI** | `src/ui/Menu.h`, `.cpp` | Huỳnh Văn Lĩnh (M3) | Hiển thị menu bảng điều khiển, bắt nhập liệu, giao diện tìm kiếm, chọn bản ghi xóa khi trùng tác giả/tên. |
-| **Storage** | `src/storage/FileStorage.h`, `.cpp` | Lê Cường Bảo (M4) | Đọc và ghi tệp CSV chuẩn UTF-8, kiểm tra hợp lệ bản ghi, khôi phục trạng thái cây từ file. |
-| **QA / Tests** | `tests/cases/`, `tests/results/` | Phạm Đức Cường (M5) | Xây dựng bộ ca kiểm thử, đo đạc thời gian thực thi $O(h)$ và đánh giá độ phức tạp thuật toán. |
+| **Entry Point** | `src/main.cpp` | Khung ban đầu: Trần Ninh Thuận (M1); tích hợp ứng dụng: Codex | Cấu hình console UTF-8, nạp CSV, tạo BST và gọi menu. |
+| **Model** | `src/models/Book.h`, `.cpp` | Phần model ban đầu: M2; chuẩn hóa/kiểm tra ISBN: tích hợp | Thực thể sách, chuẩn hóa ISBN-10/13 và kiểm tra checksum cùng trường bắt buộc. |
+| **BST Core** | `src/bst/BST.h`, `BSTNode.h`, `.cpp` | Phần BST ban đầu: M2; tích hợp ứng dụng: Codex | Cây BST theo ISBN với `insert`, `search`, `deleteBook`, cập nhật, duyệt `LNR/NLR/LRN` và giải phóng cây. |
+| **Console UI** | `src/ui/Menu.h`, `.cpp` | Bổ sung ở commit tích hợp | Menu thêm, sửa, xóa, tìm ISBN/tên/tác giả, xem thứ tự duyệt và lưu dữ liệu. |
+| **Storage** | `src/storage/FileStorage.h`, `.cpp` | Bổ sung ở commit tích hợp | Đọc/ghi CSV UTF-8, xử lý trường có dấu phẩy/ngoặc kép, báo dòng lỗi và thay tệp an toàn. |
+| **QA / Tests** | `tests/cases/`, `tests/results/`, `tests/` | Kế hoạch: Phạm Đức Cường (M5); test BST: M2; test CSV: tích hợp | Ca kiểm thử chức năng cho BST và CSV; kết quả thực chạy được ghi riêng trong `tests/results/`. Chưa có số đo hiệu năng được xác nhận. |
 
 ---
 
@@ -42,11 +42,11 @@ graph TD
 
 ### 3.1. Quyền sở hữu và Vòng đời của Cây BST
 - **BST sở hữu toàn bộ các `BSTNode*`:** Cây nhị phân tìm kiếm chịu trách nhiệm cấp phát động (`new BSTNode`) khi chèn sách và giải phóng (`delete`) khi xóa sách.
-- **Hủy cây an toàn (`clear()` / Destructor):** Khi kết thúc phiên làm việc, destructor `~BST()` sẽ duyệt hậu thứ tự (Post-order / LRN) để giải phóng toàn bộ các node, ngăn ngừa triệt để lỗi rò rỉ bộ nhớ (Memory Leak).
-- **Phòng chống Double-free:** Cấm phép gán copy hoặc cài đặt sao chép sâu (Deep Copy) để đảm bảo hai con trỏ không bao giờ cùng trỏ vào một vùng nhớ node.
+- **Hủy cây an toàn:** `destroyTree()` duyệt hậu thứ tự (Post-order / LRN) để giải phóng các node khi chương trình kết thúc.
+- **Phòng chống Double-free:** Chỉ gọi `destroyTree()` một lần cho mỗi gốc; sau khi giải phóng không dùng lại các con trỏ node.
 
 ### 3.2. Quy tắc định danh và tra cứu
-- **Khóa chính duy nhất:** Khóa của BST là `ISBN` (đã chuẩn hóa, loại bỏ dấu gạch ngang).
+- **Khóa chính duy nhất:** ISBN được bỏ dấu cách/dấu gạch ngang, đổi chữ `x` thành `X`; ISBN-10 hợp lệ được quy đổi thành ISBN-13 tương ứng trước khi lưu làm khóa.
 - **Tra cứu ISBN:** Thao tác tìm kiếm có độ phức tạp thời gian trung bình $O(\log N)$ và trường hợp xấu nhất là $O(h) = O(N)$.
 - **Tra cứu Tên sách / Tác giả:** Do tên và tác giả có thể trùng lặp, hệ thống sử dụng thuật toán duyệt toàn bộ cây ($O(N)$) để gom danh sách kết quả. Nếu tìm thấy nhiều sách trùng tên, hệ thống hiển thị bảng danh sách và yêu cầu người dùng xác nhận mã ISBN cần thao tác.
 
