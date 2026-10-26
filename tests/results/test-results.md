@@ -1,6 +1,7 @@
 ﻿# KẾT QUẢ KIỂM THỬ — QUẢN LÝ SÁCH THƯ VIỆN
 
-- Người thực hiện: Phạm Đức Cường (M5)
+- Người phụ trách QA: Phạm Đức Cường (M5)
+- Người kiểm tra môi trường: Codex
 - Ngày kiểm tra: 26/10/2026
 - Mã nguồn: working tree sau `5afab23` (chưa commit)
 - Môi trường biên dịch: g++ 15.2.0, C++17, Windows
