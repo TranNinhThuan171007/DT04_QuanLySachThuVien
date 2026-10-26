@@ -13,4 +13,10 @@ struct Book {
     std::string genre;
 };
 
+// Kiem tra thong tin sach co hop le khong.
+bool isValidBook(const Book& book);
+
+// In day du thong tin sach.
+void printBookInfo(const Book& book);
+
 #endif

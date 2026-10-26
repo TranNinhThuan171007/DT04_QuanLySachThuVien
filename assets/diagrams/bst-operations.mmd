@@ -1,0 +1,9 @@
+﻿flowchart TD
+    A["Bat dau"] --> B["Nhap thong tin sach"]
+    B --> C{"ISBN da ton tai?"}
+    C -- "Co" --> D["Tu choi them sach"]
+    C -- "Khong" --> E["So sanh ISBN voi nut hien tai"]
+    E --> F["Chen vao nhanh trai hoac phai"]
+    F --> G["Cap nhat cay BST"]
+    D --> H["Ket thuc"]
+    G --> H
