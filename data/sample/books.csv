@@ -1,0 +1,9 @@
+ISBN,Title,Author,Publisher,Year,Genre
+9780321563842,The C++ Programming Language,Bjarne Stroustrup,Addison-Wesley,2013,Programming
+9780131103627,The C Programming Language,"Brian W. Kernighan, Dennis M. Ritchie",Prentice Hall,1988,Programming
+9780201633610,Design Patterns,"Erich Gamma, Richard Helm, Ralph Johnson, John Vlissides",Addison-Wesley,1994,Software Design
+9780596007126,Head First Design Patterns,"Eric Freeman, Elisabeth Robson",O'Reilly Media,2004,Software Design
+9780132350884,Clean Code,Robert C. Martin,Prentice Hall,2008,Programming
+9780134685991,Effective Java,Joshua Bloch,Addison-Wesley,2017,Programming
+9780135957059,The Pragmatic Programmer,"David Thomas, Andrew Hunt",Addison-Wesley,2019,Software Design
+9780321125217,Domain-Driven Design,Eric Evans,Addison-Wesley,2003,Software Architecture

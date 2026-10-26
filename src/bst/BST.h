@@ -17,6 +17,7 @@ void printBook(const Book& book);
 void inorder(BSTNode* root);
 void preorder(BSTNode* root);
 void postorder(BSTNode* root);
+std::vector<Book> getBooksInOrder(BSTNode* root);
 
 void searchByTitle(BSTNode* root, const std::string& title,
                    std::vector<Book>& results);

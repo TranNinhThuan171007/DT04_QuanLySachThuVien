@@ -1,32 +1,17 @@
-/**
- * @file main.cpp
- * @brief Điểm khởi nhập chương trình Quản lý danh mục sách thư viện (Đề tài 04)
- * @author Trần Ninh Thuận (M1 - Trưởng nhóm)
- * @date 2026-10-25
- * 
- * Học phần: Cấu trúc dữ liệu và Giải thuật (C++)
- * Nhóm thực hiện:
- *   - M1: Trần Ninh Thuận (Trưởng nhóm: Điều phối, kiến trúc, Chương 1 & LaTeX)
- *   - M2: Phan Thế Hiệp (BST, cấu trúc dữ liệu, thuật toán cây & Chương 2)
- *   - M3: Huỳnh Văn Lĩnh (Nghiệp vụ, menu console/CRUD & Chương 3)
- *   - M4: Lê Cường Bảo (Persistence, đọc/ghi tệp CSV & Chương 3)
- *   - M5: Phạm Đức Cường (Đảm bảo chất lượng, ca kiểm thử & Chương 4)
- */
+#include "bst/BST.h"
+#include "storage/FileStorage.h"
+#include "ui/Menu.h"
 
+#include <filesystem>
 #include <iostream>
-#include <string>
 #include <cstdlib>
+#include <system_error>
 
 #ifdef _WIN32
 #include <windows.h>
 #endif
 
-// Khai báo placeholder cho các module (M2, M3, M4 sẽ hoàn thiện cài đặt)
-// #include "models/Book.h"
-// #include "bst/BST.h"
-// #include "storage/FileStorage.h"
-// #include "ui/Menu.h"
-
+namespace {
 void configureConsoleUtf8() {
 #ifdef _WIN32
     SetConsoleOutputCP(CP_UTF8);
@@ -34,34 +19,48 @@ void configureConsoleUtf8() {
 #endif
 }
 
-void printBanner() {
-    std::cout << "======================================================================\n";
-    std::cout << "   TRƯỜNG ĐẠI HỌC - KHOA CÔNG NGHỆ THÔNG TIN                          \n";
-    std::cout << "   BÀI TẬP LỚN: CẤU TRÚC DỮ LIỆU & GIẢI THUẬT (C++)                   \n";
-    std::cout << "   ĐỀ TÀI 04: QUẢN LÝ DANH MỤC SÁCH THƯ VIỆN BẰNG CÂY NHỊ PHÂN (BST) \n";
-    std::cout << "======================================================================\n";
-    std::cout << " Thành viên nhóm 04:\n";
-    std::cout << "   [M1] Trần Ninh Thuận (Trưởng nhóm - Kiến trúc & Điều phối)\n";
-    std::cout << "   [M2] Phan Thế Hiệp   (Lõi BST & Thuật toán cây)\n";
-    std::cout << "   [M3] Huỳnh Văn Lĩnh  (Nghiệp vụ ứng dụng & Giao diện Console)\n";
-    std::cout << "   [M4] Lê Cường Bảo    (Lưu trữ tệp & Dữ liệu mẫu)\n";
-    std::cout << "   [M5] Phạm Đức Cường  (Kiểm thử QA & Báo cáo thực nghiệm)\n";
-    std::cout << "----------------------------------------------------------------------\n";
+struct TreeCleanup {
+    BSTNode*& root;
+    ~TreeCleanup() { destroyTree(root); }
+};
 }
 
 int main(int argc, char* argv[]) {
     configureConsoleUtf8();
-    printBanner();
+    const std::filesystem::path dataFile = argc > 1
+        ? std::filesystem::path(argv[1])
+        : std::filesystem::path("data/sample/books.csv");
 
-    std::cout << "[INFO] Khởi tạo kiến trúc hệ thống thành công.\n";
-    std::cout << "[INFO] Cấu trúc module C++:\n";
-    std::cout << "  - models/  : Mô hình dữ liệu Sách (Book)\n";
-    std::cout << "  - bst/     : Cây nhị phân tìm kiếm theo ISBN (BST, BSTNode)\n";
-    std::cout << "  - storage/ : Đọc/ghi dữ liệu tệp CSV bền vững (FileStorage)\n";
-    std::cout << "  - ui/      : Giao diện dòng lệnh tương tác (Menu)\n\n";
+    BSTNode* root = nullptr;
+    TreeCleanup cleanup{root};
 
-    std::cout << "[INFO] Hệ thống đã sẵn sàng để tích hợp mã nguồn từ các thành viên M2, M3, M4.\n";
-    std::cout << "[INFO] Sẵn sàng biên dịch và chạy thử.\n";
+    std::cout << "QUẢN LÝ DANH MỤC SÁCH THƯ VIỆN\n"
+              << "Tệp dữ liệu: " << dataFile.string() << '\n';
+    const BookLoadResult loaded = loadBooksCSV(dataFile);
+    if (!loaded.opened) {
+        for (const auto& error : loaded.errors) std::cerr << "CSV: " << error << '\n';
+        std::error_code pathError;
+        const bool pathExists = std::filesystem::exists(dataFile, pathError);
+        if (pathExists || pathError) {
+            std::cerr << "Không đọc được tệp dữ liệu hiện có; dừng để tránh ghi đè.\n";
+            return EXIT_FAILURE;
+        }
+        std::cerr << "Chưa nạp được dữ liệu. Chương trình sẽ mở danh mục trống; "
+                  << "tệp sẽ được tạo khi lưu thành công.\n";
+    }
+    if (loaded.opened && !loaded.errors.empty()) {
+        for (const auto& error : loaded.errors) std::cerr << "CSV: " << error << '\n';
+        std::cerr << "Không mở danh mục có lỗi để tránh ghi đè tệp gốc. "
+                  << "Hãy sửa CSV hoặc truyền đường dẫn đến tệp khác.\n";
+        return EXIT_FAILURE;
+    }
+    for (const auto& book : loaded.books) {
+        if (!insert(root, book)) {
+            std::cerr << "Bỏ qua sách không hợp lệ hoặc ISBN trùng: " << book.isbn << '\n';
+        }
+    }
+    std::cout << "Đã nạp " << getBooksInOrder(root).size() << " đầu sách.\n";
 
+    runMenu(root, dataFile);
     return 0;
 }

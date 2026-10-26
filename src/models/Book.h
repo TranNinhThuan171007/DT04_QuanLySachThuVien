@@ -8,7 +8,7 @@ struct Book {
     std::string title;
     std::string author;
     std::string publisher;
-    int year;
+    int year{};
     std::string genre;
 };
 

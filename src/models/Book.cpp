@@ -4,6 +4,10 @@
 #include <iostream>
 
 namespace {
+bool hasVisibleText(const std::string& value) {
+    return value.find_first_not_of(" \t\r\n") != std::string::npos;
+}
+
 std::string stripISBN(const std::string& value) {
     std::string isbn;
     isbn.reserve(value.size());
@@ -32,6 +36,7 @@ std::string normalizeISBN(const std::string& value) {
 bool isValidISBN(const std::string& value) {
     const std::string isbn = stripISBN(value);
     if (isbn.size() == 13) {
+        if (isbn.rfind("978", 0) != 0 && isbn.rfind("979", 0) != 0) return false;
         int sum = 0;
         for (std::size_t i = 0; i < 12; ++i) {
             if (!std::isdigit(static_cast<unsigned char>(isbn[i]))) return false;
@@ -56,11 +61,11 @@ bool isValidISBN(const std::string& value) {
 
 bool isValidBook(const Book& book) {
     return isValidISBN(book.isbn)
-        && !book.title.empty()
-        && !book.author.empty()
-        && !book.publisher.empty()
+        && hasVisibleText(book.title)
+        && hasVisibleText(book.author)
+        && hasVisibleText(book.publisher)
         && book.year > 0
-        && !book.genre.empty();
+        && hasVisibleText(book.genre);
 }
 
 void printBookInfo(const Book& book) {

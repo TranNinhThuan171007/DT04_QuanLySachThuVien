@@ -44,14 +44,19 @@ scripts/              Lệnh hỗ trợ build hoặc chuẩn hóa dữ liệu
 
 Demo lưu dữ liệu riêng trong trình duyệt đang mở. Đăng nhập và phân quyền chỉ phục vụ trình diễn; hiện chưa có máy chủ hay cơ sở dữ liệu chung. Không dùng bản này để quản lý dữ liệu thư viện thật.
 
-Phần C++ hiện có mô hình sách và các thao tác BST cùng chương trình kiểm thử. Trên Windows, tạo thư mục `build` rồi biên dịch bằng MinGW g++:
+## Build và chạy chương trình C++
 
-```powershell
-New-Item -ItemType Directory -Force build | Out-Null
-g++ -std=c++17 -Wall -Wextra -Wpedantic src/models/Book.cpp src/bst/BST.cpp tests/test_bst.cpp -o build/test_bst
+Cần CMake 3.16 trở lên và trình biên dịch C++17 (MinGW g++, GCC hoặc Clang). Từ thư mục repo, chạy:
+
+```sh
+cmake -S . -B build
+cmake --build build
+ctest --test-dir build --output-on-failure
 ```
 
-Lệnh này tạo chương trình kiểm tra BST. Menu console và phần đọc/ghi tệp chưa được tích hợp.
+Với generator một cấu hình, chạy `build/library_app.exe` trên Windows hoặc `./build/library_app` trên Linux/macOS từ thư mục repo để nạp `data/sample/books.csv`. Visual Studio đặt chương trình trong `build/Release/`. Có thể truyền đường dẫn CSV khác làm đối số đầu tiên. Tệp CSV dùng header `ISBN,Title,Author,Publisher,Year,Genre`. Khi lưu, chương trình ghi tệp tạm trước; tệp cũ được giữ lại trong lúc thay thế và phục hồi nếu bước thay thế lỗi.
+
+Các test được build cùng dự án và chạy bằng CTest như lệnh trên.
 
 ## Nhóm thực hiện
 
