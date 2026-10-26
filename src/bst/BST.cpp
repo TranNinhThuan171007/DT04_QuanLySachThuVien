@@ -1,9 +1,20 @@
-﻿
-#include "BST.h"
+﻿#include "BST.h"
 
+#include <algorithm>
+#include <cctype>
 #include <iostream>
+#include <string>
 
 using namespace std;
+
+// Chuyen chu ASCII thanh chu thuong
+static string toLowerCase(string text) {
+    transform(text.begin(), text.end(), text.begin(),
+              [](unsigned char c) {
+                  return static_cast<char>(tolower(c));
+              });
+    return text;
+}
 
 // In day du thong tin sach
 void printBook(const Book& book) {
@@ -17,11 +28,15 @@ void printBook(const Book& book) {
 
 // Them sach; ISBN phai duy nhat
 bool insert(BSTNode*& root, const Book& book) {
+    // Tu choi sach co thong tin khong hop le
+    if (!isValidBook(book)) {
+        return false;
+    }
+
     if (root == nullptr) {
         root = new BSTNode(book);
         return true;
     }
-
     if (book.isbn < root->data.isbn) {
         return insert(root->left, book);
     }
@@ -145,23 +160,26 @@ void postorder(BSTNode* root) {
     printBook(root->data);
 }
 
-// Tim theo ten sach (khong phan biet chu hoa, chu thuong)
-
+// Tim theo ten sach, khong phan biet chu hoa va chu thuong
 void searchByTitle(BSTNode* root, const string& title,
                    vector<Book>& results) {
-    if (root == nullptr) return;
+    if (root == nullptr) {
+        return;
+    }
 
     searchByTitle(root->left, title, results);
 
-    if (root->data.title.find(title) != string::npos) {
+    string lowerTitle = toLowerCase(title);
+    string lowerBookTitle = toLowerCase(root->data.title);
+
+    if (lowerBookTitle.find(lowerTitle) != string::npos) {
         results.push_back(root->data);
     }
 
     searchByTitle(root->right, title, results);
 }
 
-
-// Tim theo tac gia
+// Tim theo tac gia, khong phan biet chu hoa va chu thuong
 void searchByAuthor(BSTNode* root, const string& author,
                     vector<Book>& results) {
     if (root == nullptr) {
@@ -170,13 +188,15 @@ void searchByAuthor(BSTNode* root, const string& author,
 
     searchByAuthor(root->left, author, results);
 
-    if (root->data.author.find(author) != string::npos) {
+    string lowerAuthor = toLowerCase(author);
+    string lowerBookAuthor = toLowerCase(root->data.author);
+
+    if (lowerBookAuthor.find(lowerAuthor) != string::npos) {
         results.push_back(root->data);
     }
 
     searchByAuthor(root->right, author, results);
 }
-
 // Giai phong toan bo cay
 void destroyTree(BSTNode* root) {
     if (root == nullptr) {

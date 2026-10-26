@@ -1,5 +1,4 @@
-﻿
-#ifndef BOOK_H
+﻿#ifndef BOOK_H
 #define BOOK_H
 
 #include <string>
@@ -12,5 +11,8 @@ struct Book {
     int year;
     std::string genre;
 };
+
+bool isValidBook(const Book& book);
+void printBookInfo(const Book& book);
 
 #endif
