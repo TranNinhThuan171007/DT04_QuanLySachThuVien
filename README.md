@@ -42,7 +42,7 @@ scripts/              Lệnh hỗ trợ build hoặc chuẩn hóa dữ liệu
 
 Để xem demo trên máy, mở `web/index.html` trong trình duyệt. Cài thêm thư viện hoặc công cụ build là không cần thiết. Workflow `.github/workflows/pages.yml` đăng nội dung trong `web/` lên GitHub Pages sau mỗi lần cập nhật `main`, nếu Pages được cấu hình dùng **GitHub Actions**.
 
-Để deploy trên Vercel, import repo này vào Vercel và đặt **Root Directory** là `web`; framework preset chọn **Other**, Build Command để trống, Output Directory là `.`. Repo có `vercel.json` để điều hướng các URL của demo về `index.html`. Mỗi lần push lên `main`, Vercel sẽ tự deploy lại nếu đã bật Git Integration.
+Để deploy trên Vercel, import repo này với **Root Directory** là thư mục gốc; framework preset chọn **Other**, Build Command để trống. `vercel.json` xuất bản nội dung trong `web/` và điều hướng URL về `index.html`. Mỗi lần push lên `main`, Vercel sẽ tự deploy lại nếu đã bật Git Integration.
 
 Demo lưu dữ liệu riêng trong trình duyệt đang mở. Đăng nhập và phân quyền chỉ phục vụ trình diễn; hiện chưa có máy chủ hay cơ sở dữ liệu chung. Không dùng bản này để quản lý dữ liệu thư viện thật.
 
