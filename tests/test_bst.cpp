@@ -63,6 +63,54 @@ int main() {
     // 8. Duyet LNR
     std::cout << "\nDanh sach theo ISBN tang dan:\n";
     inorder(root);
+    
+    // 9. Kiem tra xoa nut la
+    BSTNode* testRoot = nullptr;
+
+    Book t1{"2", "Sach 2", "Tac gia A", "NXB A", 2024, "CNTT"};
+    Book t2{"1", "Sach 1", "Tac gia B", "NXB B", 2023, "CNTT"};
+    Book t3{"3", "Sach 3", "Tac gia C", "NXB C", 2022, "CNTT"};
+
+    assert(insert(testRoot, t1));
+    assert(insert(testRoot, t2));
+    assert(insert(testRoot, t3));
+
+    testRoot = deleteBook(testRoot, "1");
+    assert(search(testRoot, "1") == nullptr);
+    assert(search(testRoot, "2") != nullptr);
+    assert(search(testRoot, "3") != nullptr);
+    destroyTree(testRoot);
+    std::cout << "PASS: Xoa nut la\n";
+
+    // 10. Kiem tra xoa nut co mot con
+    testRoot = nullptr;
+    assert(insert(testRoot, t1));
+    assert(insert(testRoot, t2));
+
+    testRoot = deleteBook(testRoot, "1");
+    assert(search(testRoot, "1") == nullptr);
+    assert(search(testRoot, "2") != nullptr);
+    destroyTree(testRoot);
+    std::cout << "PASS: Xoa nut co mot con\n";
+
+    // 11. Kiem tra xoa nut co hai con
+    testRoot = nullptr;
+    assert(insert(testRoot, t1));
+    assert(insert(testRoot, t2));
+    assert(insert(testRoot, t3));
+
+    testRoot = deleteBook(testRoot, "2");
+    assert(search(testRoot, "2") == nullptr);
+    assert(search(testRoot, "1") != nullptr);
+    assert(search(testRoot, "3") != nullptr);
+    destroyTree(testRoot);
+    std::cout << "PASS: Xoa nut co hai con\n";
+
+    // 12. Kiem tra xoa tren cay rong
+    testRoot = nullptr;
+    testRoot = deleteBook(testRoot, "999");
+    assert(testRoot == nullptr);
+    std::cout << "PASS: Xoa tren cay rong\n";
 
     destroyTree(root);
     root = nullptr;
