@@ -28,21 +28,22 @@ void printBook(const Book& book) {
 
 // Them sach; ISBN phai duy nhat
 bool insert(BSTNode*& root, const Book& book) {
-    // Tu choi sach co thong tin khong hop le
-    if (!isValidBook(book)) {
+    Book normalizedBook = book;
+    normalizedBook.isbn = normalizeISBN(book.isbn);
+    if (!isValidBook(normalizedBook)) {
         return false;
     }
 
     if (root == nullptr) {
-        root = new BSTNode(book);
+        root = new BSTNode(normalizedBook);
         return true;
     }
-    if (book.isbn < root->data.isbn) {
-        return insert(root->left, book);
+    if (normalizedBook.isbn < root->data.isbn) {
+        return insert(root->left, normalizedBook);
     }
 
-    if (book.isbn > root->data.isbn) {
-        return insert(root->right, book);
+    if (normalizedBook.isbn > root->data.isbn) {
+        return insert(root->right, normalizedBook);
     }
 
     // ISBN da ton tai
@@ -51,15 +52,11 @@ bool insert(BSTNode*& root, const Book& book) {
 
 // Tim sach theo ISBN
 BSTNode* search(BSTNode* root, const string& isbn) {
-    if (root == nullptr || root->data.isbn == isbn) {
-        return root;
+    const string key = normalizeISBN(isbn);
+    while (root != nullptr && root->data.isbn != key) {
+        root = key < root->data.isbn ? root->left : root->right;
     }
-
-    if (isbn < root->data.isbn) {
-        return search(root->left, isbn);
-    }
-
-    return search(root->right, isbn);
+    return root;
 }
 
 // Tim node co ISBN nho nhat trong cay con
@@ -77,14 +74,15 @@ BSTNode* findMin(BSTNode* root) {
 
 // Xoa sach theo ISBN
 BSTNode* deleteBook(BSTNode* root, const string& isbn) {
+    const string key = normalizeISBN(isbn);
     if (root == nullptr) {
         return nullptr;
     }
 
-    if (isbn < root->data.isbn) {
-        root->left = deleteBook(root->left, isbn);
-    } else if (isbn > root->data.isbn) {
-        root->right = deleteBook(root->right, isbn);
+    if (key < root->data.isbn) {
+        root->left = deleteBook(root->left, key);
+    } else if (key > root->data.isbn) {
+        root->right = deleteBook(root->right, key);
     } else {
         // Khong co con trai
         if (root->left == nullptr) {
@@ -114,7 +112,10 @@ bool updateBook(BSTNode* root, const string& isbn,
                 const Book& updatedBook) {
     BSTNode* node = search(root, isbn);
 
-    if (node == nullptr) {
+    Book normalizedUpdate = updatedBook;
+    normalizedUpdate.isbn = normalizeISBN(updatedBook.isbn);
+    if (node == nullptr || normalizedUpdate.isbn != node->data.isbn ||
+        !isValidBook(normalizedUpdate)) {
         return false;
     }
 

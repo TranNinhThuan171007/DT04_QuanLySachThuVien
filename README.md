@@ -38,11 +38,19 @@ scripts/              Lệnh hỗ trợ build hoặc chuẩn hóa dữ liệu
 - Dùng Jira theo yêu cầu môn học; `docs/plan/backlog.csv` là nguồn công việc ban đầu để nhập/đối chiếu. Cập nhật Jira ít nhất mỗi ngày trong tuần cuối.
 - Commit nhỏ, nêu rõ hành động và mã task, ví dụ `feat(DSA-04): add ISBN search`.
 
-## Build và chạy
+## Chạy và triển khai bản demo web
 
-Build instructions sẽ được cập nhật khi nhóm chốt môi trường compiler và thêm mã nguồn. Khuyến nghị dùng C++17 và lưu dữ liệu UTF-8. Không commit file thực thi hay tệp build.
+Mở `web/index.html` trong trình duyệt hiện đại để chạy demo cục bộ. Không cần framework hoặc máy chủ. Nếu bật GitHub Pages với nguồn **GitHub Actions**, workflow `.github/workflows/pages.yml` sẽ triển khai nội dung `web/` mỗi khi có thay đổi trên `main`.
 
-Mở trực tiếp web/index.html để dùng giao diện web. Danh mục mẫu và các thay đổi được lưu trong localStorage của trình duyệt hiện tại; ứng dụng chưa kết nối máy chủ hay cơ sở dữ liệu dùng chung.
+Demo lưu danh mục và trạng thái trong `localStorage` của trình duyệt. Đăng nhập/phân quyền cũng mô phỏng phía trình duyệt; ứng dụng chưa có backend, cơ sở dữ liệu dùng chung hay bảo vệ dữ liệu thật. Vì vậy GitHub Pages chỉ phù hợp để trình diễn, không dùng vận hành thư viện thực tế.
+
+Mã C++ trong `src/` là phần đồ án BST. Build thủ công phần model/BST/test với C++17:
+
+```sh
+g++ -std=c++17 -Wall -Wextra -Wpedantic src/models/Book.cpp src/bst/BST.cpp tests/test_bst.cpp -o build/test_bst
+```
+
+Chương trình menu console và module persistence chưa được tích hợp đầy đủ; không xem lệnh trên là bản build ứng dụng hoàn chỉnh.
 
 ## Nộp bài
 

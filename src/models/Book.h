@@ -12,6 +12,8 @@ struct Book {
     std::string genre;
 };
 
+std::string normalizeISBN(const std::string& isbn);
+bool isValidISBN(const std::string& isbn);
 bool isValidBook(const Book& book);
 void printBookInfo(const Book& book);
 
