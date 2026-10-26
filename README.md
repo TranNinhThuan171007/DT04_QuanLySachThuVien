@@ -53,10 +53,6 @@ g++ -std=c++17 -Wall -Wextra -Wpedantic src/models/Book.cpp src/bst/BST.cpp test
 
 Lệnh này tạo chương trình kiểm tra BST. Menu console và phần đọc/ghi tệp chưa được tích hợp.
 
-## Nộp bài
-
-Hạn nộp theo đề là **01/11/2026**. Trước ngày nộp, nhóm hoàn thiện chương trình, báo cáo 40–50 trang, slide, dữ liệu mẫu và kịch bản demo; sau đó đối chiếu phần đóng góp với lịch sử Git và Jira. Checklist nằm trong `docs/plan/ke-hoach-tong-the.md`.
-
 ## Nhóm thực hiện
 
 Dự án gồm 5 thành viên:
