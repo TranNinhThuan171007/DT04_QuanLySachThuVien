@@ -8,11 +8,11 @@
 int main() {
     BSTNode* root = nullptr;
 
-    Book b1{"9780003", "Lap trinh C++", "Nguyen An",
+    Book b1{"9780306406157", "Lap trinh C++", "Nguyen An",
             "NXB Tre", 2024, "Cong nghe"};
-    Book b2{"9780001", "Cau truc du lieu", "Tran Binh",
+    Book b2{"9780131103627", "Cau truc du lieu", "Tran Binh",
             "NXB Giao Duc", 2023, "Giao trinh"};
-    Book b3{"9780002", "Hoc C++ co ban", "Nguyen An",
+    Book b3{"9780201633610", "Hoc C++ co ban", "Nguyen An",
             "NXB Kim Dong", 2022, "Cong nghe"};
 
     // 1. Them sach
@@ -23,10 +23,13 @@ int main() {
 
     // 2. Tu choi ISBN trung
     assert(!insert(root, b1));
+    Book sameBookWithISBN10{"0-13-110362-8", "C language", "Kernighan", "Prentice Hall", 1988, "CNTT"};
+    assert(!insert(root, sameBookWithISBN10));
+    assert(search(root, "0131103628") == search(root, "9780131103627"));
     std::cout << "PASS: Khong them ISBN trung\n";
 
     // 3. Tim theo ISBN
-    BSTNode* found = search(root, "9780002");
+    BSTNode* found = search(root, "978-0-201-63361-0");
     assert(found != nullptr);
     assert(found->data.title == "Hoc C++ co ban");
     assert(search(root, "0000000") == nullptr);
@@ -42,7 +45,7 @@ int main() {
     results.clear();
     searchByTitle(root, "lap trinh c++", results);
     assert(results.size() == 1);
-    assert(results[0].isbn == "9780003");
+    assert(results[0].isbn == "9780306406157");
     std::cout << "PASS: Tim ten sach khong phan biet hoa thuong\n";
 
     // 6. Tim theo tac gia
@@ -58,17 +61,19 @@ int main() {
     std::cout << "PASS: Tim tac gia khong phan biet hoa thuong\n";
 
     // 8. Cap nhat thong tin
-    Book updated{"9780002", "C++ nang cao", "Nguyen An",
+    Book updated{"978-0-201-63361-0", "C++ nang cao", "Nguyen An",
                  "NXB Moi", 2025, "Cong nghe"};
-    assert(updateBook(root, "9780002", updated));
-    assert(search(root, "9780002")->data.title == "C++ nang cao");
+    assert(updateBook(root, "9780201633610", updated));
+    assert(search(root, "9780201633610")->data.title == "C++ nang cao");
+    Book invalidUpdate{"9780201633610", "", "Nguyen An", "NXB Moi", 2025, "Cong nghe"};
+    assert(!updateBook(root, "9780201633610", invalidUpdate));
     assert(!updateBook(root, "9999999", updated));
     std::cout << "PASS: Cap nhat sach\n";
 
     // 9. Xoa sach
-    root = deleteBook(root, "9780001");
-    assert(search(root, "9780001") == nullptr);
-    assert(search(root, "9780002") != nullptr);
+    root = deleteBook(root, "978-0-131-10362-7");
+    assert(search(root, "9780131103627") == nullptr);
+    assert(search(root, "9780201633610") != nullptr);
     std::cout << "PASS: Xoa sach\n";
 
     // 10. Duyet LNR
@@ -77,18 +82,18 @@ int main() {
 
     // Du lieu rieng cho cac test xoa
     BSTNode* testRoot = nullptr;
-    Book t1{"2", "Sach 2", "Tac gia A", "NXB A", 2024, "CNTT"};
-    Book t2{"1", "Sach 1", "Tac gia B", "NXB B", 2023, "CNTT"};
-    Book t3{"3", "Sach 3", "Tac gia C", "NXB C", 2022, "CNTT"};
+    Book t1{"9780201633610", "Sach giua", "Tac gia A", "NXB A", 2024, "CNTT"};
+    Book t2{"9780131103627", "Sach nho", "Tac gia B", "NXB B", 2023, "CNTT"};
+    Book t3{"9780306406157", "Sach lon", "Tac gia C", "NXB C", 2022, "CNTT"};
 
     // 11. Xoa nut la
     assert(insert(testRoot, t1));
     assert(insert(testRoot, t2));
     assert(insert(testRoot, t3));
-    testRoot = deleteBook(testRoot, "1");
-    assert(search(testRoot, "1") == nullptr);
-    assert(search(testRoot, "2") != nullptr);
-    assert(search(testRoot, "3") != nullptr);
+    testRoot = deleteBook(testRoot, "9780306406157");
+    assert(search(testRoot, "9780306406157") == nullptr);
+    assert(search(testRoot, "9780201633610") != nullptr);
+    assert(search(testRoot, "9780131103627") != nullptr);
     destroyTree(testRoot);
     testRoot = nullptr;
     std::cout << "PASS: Xoa nut la\n";
@@ -96,9 +101,9 @@ int main() {
     // 12. Xoa nut co mot con
     assert(insert(testRoot, t1));
     assert(insert(testRoot, t2));
-    testRoot = deleteBook(testRoot, "1");
-    assert(search(testRoot, "1") == nullptr);
-    assert(search(testRoot, "2") != nullptr);
+    testRoot = deleteBook(testRoot, "9780201633610");
+    assert(search(testRoot, "9780201633610") == nullptr);
+    assert(search(testRoot, "9780131103627") != nullptr);
     destroyTree(testRoot);
     testRoot = nullptr;
     std::cout << "PASS: Xoa nut co mot con\n";
@@ -107,10 +112,10 @@ int main() {
     assert(insert(testRoot, t1));
     assert(insert(testRoot, t2));
     assert(insert(testRoot, t3));
-    testRoot = deleteBook(testRoot, "2");
-    assert(search(testRoot, "2") == nullptr);
-    assert(search(testRoot, "1") != nullptr);
-    assert(search(testRoot, "3") != nullptr);
+    testRoot = deleteBook(testRoot, "9780201633610");
+    assert(search(testRoot, "9780201633610") == nullptr);
+    assert(search(testRoot, "9780131103627") != nullptr);
+    assert(search(testRoot, "9780306406157") != nullptr);
     destroyTree(testRoot);
     testRoot = nullptr;
     std::cout << "PASS: Xoa nut co hai con\n";
@@ -123,7 +128,7 @@ int main() {
     std::cout << "PASS: Tu choi sach khong co ISBN\n";
 
     // 15. Tu choi nam xuat ban khong hop le
-    Book invalidYearBook{"9789999", "Sach loi", "Nguyen An",
+    Book invalidYearBook{"9780306406157", "Sach loi", "Nguyen An",
                          "NXB Tre", 0, "Cong nghe"};
     assert(!isValidBook(invalidYearBook));
     assert(!insert(root, invalidYearBook));
