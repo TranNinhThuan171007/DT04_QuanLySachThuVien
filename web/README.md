@@ -4,7 +4,13 @@ Mở index.html trong trình duyệt hiện đại. Không cần cài framework,
 
 ## Triển khai demo
 
-Repo có workflow GitHub Pages tại `.github/workflows/pages.yml`. Chọn **Settings → Pages → Build and deployment → GitHub Actions**. Sau khi workflow chạy thành công trên `main`, GitHub Pages cung cấp URL demo. Ứng dụng chỉ lưu dữ liệu trên trình duyệt và không có backend; dùng cho trình diễn, không dùng với dữ liệu thư viện thật.
+Repo có workflow GitHub Pages tại `.github/workflows/pages.yml`. Chọn **Settings → Pages → Build and deployment → GitHub Actions**. Sau khi workflow chạy thành công trên `main`, GitHub Pages cung cấp URL demo.
+
+### Vercel
+
+Khi import repo vào Vercel, đặt **Root Directory** thành `web`, chọn **Other** làm framework preset, để trống Build Command và đặt Output Directory là `.`. Không cần cài dependencies. Tệp `web/vercel.json` cấu hình rewrite để các URL được tải lại đúng trang. Sau khi kết nối GitHub, mỗi lần push lên `main` sẽ tạo deployment production; pull request tạo preview deployment.
+
+Ứng dụng chỉ lưu dữ liệu trên trình duyệt và không có backend; dùng cho trình diễn, không dùng với dữ liệu thư viện thật.
 
 ## Đăng nhập & Đăng ký
 
