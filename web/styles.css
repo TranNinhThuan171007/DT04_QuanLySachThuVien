@@ -283,6 +283,64 @@ body {
   color: var(--library-hover);
 }
 
+/* ── Quên mật khẩu / OTP ── */
+.otp-email-preview {
+  margin: 0 0 18px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  background: var(--canvas);
+  overflow: hidden;
+}
+
+.otp-email-label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0;
+  padding: 8px 14px;
+  background: var(--line-soft);
+  color: var(--muted);
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: .03em;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--line);
+}
+
+.otp-email-label svg {
+  width: 14px;
+  height: 14px;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  fill: none;
+  flex-shrink: 0;
+}
+
+.otp-email-body {
+  padding: 14px 16px;
+  font-size: 13px;
+  color: var(--text);
+}
+
+.otp-email-body p {
+  margin: 4px 0;
+}
+
+.otp-code-display {
+  display: inline-block;
+  margin: 10px 0 6px;
+  padding: 8px 20px;
+  background: var(--library-tint);
+  border: 1.5px dashed var(--library);
+  border-radius: var(--radius-control);
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: .28em;
+  color: var(--library);
+  font-family: monospace;
+}
+
 .auth-grid-2 {
   display: grid;
   grid-template-columns: 1fr 1fr;

@@ -481,6 +481,11 @@ function switchAuthTab(mode) {
   }
   if (ui.loginPanel) ui.loginPanel.hidden = !isLogin;
   if (ui.registerPanel) ui.registerPanel.hidden = isLogin;
+  // An forgot / otp panels khi chuyen tab
+  const _fp = document.getElementById("forgot-panel");
+  const _op = document.getElementById("otp-panel");
+  if (_fp) _fp.hidden = true;
+  if (_op) _op.hidden = true;
   clearLoginError();
   clearRegisterError();
   if (isLogin) {
@@ -489,6 +494,156 @@ function switchAuthTab(mode) {
     if (ui.registerFullname) ui.registerFullname.focus();
   }
 }
+
+// ========== QUEN MAT KHAU / OTP ==========
+(function initForgotPassword() {
+  const forgotPanel   = document.getElementById("forgot-panel");
+  const otpPanel      = document.getElementById("otp-panel");
+  const forgotForm    = document.getElementById("forgot-form");
+  const forgotEmailEl = document.getElementById("forgot-email");
+  const forgotErrorEl = document.getElementById("forgot-error");
+  const otpForm       = document.getElementById("otp-form");
+  const otpInputEl    = document.getElementById("otp-input");
+  const otpErrorEl    = document.getElementById("otp-error");
+  const newPwdEl      = document.getElementById("new-password");
+  const newPwdCfmEl   = document.getElementById("new-password-confirm");
+  const otpPreview    = document.getElementById("otp-email-preview");
+  const otpCodeEl     = document.getElementById("otp-code-display");
+  const toggleNewPwd  = document.getElementById("toggle-new-password");
+  const linkToForgot  = document.getElementById("link-to-forgot");
+  const linkForgotToLogin = document.getElementById("link-forgot-to-login");
+  const linkOtpToForgot   = document.getElementById("link-otp-to-forgot");
+
+  if (!forgotPanel || !otpPanel) return; // HTML chua them
+
+  let _otp = "", _otpUser = "", _otpExpiry = 0;
+
+  function genOTP() {
+    return String(Math.floor(100000 + Math.random() * 900000));
+  }
+  function showForgotError(msg) {
+    if (forgotErrorEl) { forgotErrorEl.textContent = msg; forgotErrorEl.hidden = false; }
+  }
+  function showOtpError(msg) {
+    if (otpErrorEl) { otpErrorEl.textContent = msg; otpErrorEl.hidden = false; }
+  }
+  function openForgot() {
+    if (ui.loginPanel) ui.loginPanel.hidden = true;
+    if (ui.registerPanel) ui.registerPanel.hidden = true;
+    forgotPanel.hidden = false;
+    otpPanel.hidden = true;
+    if (forgotErrorEl) { forgotErrorEl.hidden = true; forgotErrorEl.textContent = ""; }
+    if (forgotForm) forgotForm.reset();
+    if (forgotEmailEl) forgotEmailEl.focus();
+  }
+  function openOTP(email) {
+    forgotPanel.hidden = true;
+    otpPanel.hidden = false;
+    const intro = document.getElementById("otp-intro");
+    if (intro) intro.textContent = "Nh\u1eadp m\u00e3 OTP 6 ch\u1eef s\u1ed1 \u0111\u00e3 g\u1eedi t\u1edbi: " + email;
+    if (otpErrorEl) { otpErrorEl.hidden = true; otpErrorEl.textContent = ""; }
+    if (otpForm) otpForm.reset();
+    if (otpPreview) otpPreview.hidden = false;
+    if (otpCodeEl) otpCodeEl.textContent = _otp;
+    if (otpInputEl) otpInputEl.focus();
+  }
+
+  if (linkToForgot) linkToForgot.addEventListener("click", openForgot);
+  if (linkForgotToLogin) linkForgotToLogin.addEventListener("click", () => switchAuthTab("login"));
+  if (linkOtpToForgot) {
+    linkOtpToForgot.addEventListener("click", () => {
+      otpPanel.hidden = true;
+      forgotPanel.hidden = false;
+      if (forgotEmailEl) forgotEmailEl.focus();
+    });
+  }
+
+  // Toggle hien/an mat khau moi
+  if (toggleNewPwd && newPwdEl) {
+    toggleNewPwd.addEventListener("click", () => {
+      const show = newPwdEl.type === "password";
+      newPwdEl.type = show ? "text" : "password";
+      toggleNewPwd.textContent = show ? "\u1ea8n" : "Hi\u1ec7n";
+      toggleNewPwd.setAttribute("aria-label", show ? "\u1ea8n m\u1eadt kh\u1ea9u" : "Hi\u1ec7n m\u1eadt kh\u1ea9u");
+      toggleNewPwd.setAttribute("aria-pressed", String(show));
+    });
+  }
+
+  // Form gui OTP
+  if (forgotForm) {
+    forgotForm.addEventListener("input", () => { if (forgotErrorEl) forgotErrorEl.hidden = true; });
+    forgotForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const email = forgotEmailEl ? forgotEmailEl.value.trim().toLocaleLowerCase("vi") : "";
+      if (!email) {
+        showForgotError("Vui l\u00f2ng nh\u1eadp \u0111\u1ecba ch\u1ec9 email.");
+        if (forgotEmailEl) forgotEmailEl.focus();
+        return;
+      }
+      const allAcc = getAllAccounts();
+      const matched = Object.values(allAcc).find((acc) =>
+        acc.email && acc.email.trim().toLocaleLowerCase("vi") === email
+      );
+      if (!matched) {
+        showForgotError("Kh\u00f4ng t\u00ecm th\u1ea5y t\u00e0i kho\u1ea3n n\u00e0o \u0111\u00e3 \u0111\u0103ng k\u00fd v\u1edbi email n\u00e0y.");
+        if (forgotEmailEl) forgotEmailEl.focus();
+        return;
+      }
+      _otp = genOTP();
+      _otpUser = matched.username;
+      _otpExpiry = Date.now() + 5 * 60 * 1000;
+      openOTP(email);
+    });
+  }
+
+  // Form xac nhan OTP + doi mat khau
+  if (otpForm) {
+    otpForm.addEventListener("input", () => { if (otpErrorEl) otpErrorEl.hidden = true; });
+    otpForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const otp   = otpInputEl ? otpInputEl.value.trim() : "";
+      const newPwd = newPwdEl ? newPwdEl.value : "";
+      const cfm   = newPwdCfmEl ? newPwdCfmEl.value : "";
+
+      if (Date.now() > _otpExpiry) {
+        showOtpError("M\u00e3 OTP \u0111\u00e3 h\u1ebft h\u1ea1n. Vui l\u00f2ng th\u1eed l\u1ea1i.");
+        _otp = "";
+        return;
+      }
+      if (!otp || otp !== _otp) {
+        showOtpError("M\u00e3 OTP kh\u00f4ng ch\u00ednh x\u00e1c. Ki\u1ec3m tra l\u1ea1i h\u1ed9p th\u01b0 gi\u1ea3 l\u1eadp.");
+        if (otpInputEl) otpInputEl.focus();
+        return;
+      }
+      if (!newPwd || newPwd.length < 4) {
+        showOtpError("M\u1eadt kh\u1ea9u m\u1edbi ph\u1ea3i c\u00f3 \u00edt nh\u1ea5t 4 k\u00fd t\u1ef1.");
+        if (newPwdEl) newPwdEl.focus();
+        return;
+      }
+      if (newPwd !== cfm) {
+        showOtpError("X\u00e1c nh\u1eadn m\u1eadt kh\u1ea9u kh\u00f4ng kh\u1edbp.");
+        if (newPwdCfmEl) newPwdCfmEl.focus();
+        return;
+      }
+
+      const isDemo = Boolean(DEMO_ACCOUNTS[_otpUser]);
+      if (!isDemo) {
+        const reg = readRegisteredAccounts();
+        if (reg[_otpUser]) {
+          reg[_otpUser].password = newPwd;
+          persistRegisteredAccounts(reg);
+        }
+      }
+      _otp = ""; _otpUser = "";
+      if (isDemo) {
+        showToast("T\u00e0i kho\u1ea3n demo kh\u00f4ng th\u1ec3 \u0111\u1ed5i m\u1eadt kh\u1ea9u.", true);
+      } else {
+        showToast("\u0110\u1eb7t l\u1ea1i m\u1eadt kh\u1ea9u th\u00e0nh c\u00f4ng! H\u00e3y \u0111\u0103ng nh\u1eadp b\u1eb1ng m\u1eadt kh\u1ea9u m\u1edbi.");
+      }
+      switchAuthTab("login");
+    });
+  }
+}());
 
 if (ui.tabLogin) ui.tabLogin.addEventListener("click", () => switchAuthTab("login"));
 if (ui.tabRegister) ui.tabRegister.addEventListener("click", () => switchAuthTab("register"));
