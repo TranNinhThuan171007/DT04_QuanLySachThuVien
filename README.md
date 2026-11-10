@@ -14,21 +14,19 @@
 
 ```text
 src/                  Mã nguồn C++: model, BST, lưu trữ, giao diện console
-  include/            Khai báo dùng chung
   models/             Mô hình Book
   bst/                Cây BST và các thao tác/duyệt
-  storage/            Đọc/ghi dữ liệu
-  ui/                 Menu và luồng nghiệp vụ
-data/sample/          Dữ liệu mẫu có thể chia sẻ
-web/                  Giao diện quản lý danh mục và minh họa BST
-docs/plan/            Kế hoạch, phân công, backlog
+  storage/            Đọc/ghi dữ liệu CSV
+  ui/                 Menu console và luồng nghiệp vụ
+data/sample/          Dữ liệu mẫu (books.csv)
+web/                  Giao diện web trực quan hóa cây BST và quản lý sách
+docs/plan/            Kế hoạch, phân công, backlog nhóm
 docs/architecture/    Sơ đồ và quyết định thiết kế
-docs/meetings/        Biên bản họp, cập nhật tiến độ
-docs/demo/            Kịch bản demo và tiêu chí nghiệm thu
-tests/cases/          Danh sách ca kiểm thử
-tests/results/        Bằng chứng/kết quả chạy sau khi kiểm thử
-assets/diagrams/      Sơ đồ dùng trong báo cáo/slide
-scripts/              Lệnh hỗ trợ build hoặc chuẩn hóa dữ liệu
+docs/meetings/        Biên bản họp nhóm
+docs/demo/            Kịch bản demo và nghiệm thu
+report/               Mã nguồn báo cáo LaTeX nộp đề tài
+tests/                Kiểm thử đơn vị C++ (BST, FileStorage)
+scripts/              Script hỗ trợ tạo tài liệu / build
 ```
 
 ## Git và cộng tác
