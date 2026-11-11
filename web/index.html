@@ -638,6 +638,10 @@
             <input id="category-input" name="category" type="text" list="category-options" maxlength="48" placeholder="Ví dụ: Lập trình" />
             <datalist id="category-options"></datalist>
           </label>
+          <label class="form-field" for="quantity-input">
+            <span>Số lượng <b aria-hidden="true">*</b></span>
+            <input id="quantity-input" name="quantity" type="number" min="1" max="999" inputmode="numeric" value="5" required placeholder="5" />
+          </label>
           <label class="form-field form-field-wide" for="cover-url-input">
             <span>URL ảnh bìa nhà xuất bản</span>
             <input id="cover-url-input" name="coverUrl" type="url" inputmode="url" autocomplete="url" placeholder="https://…" />

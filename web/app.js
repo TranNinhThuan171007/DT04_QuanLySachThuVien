@@ -254,6 +254,7 @@ function readBooks() {
         publisher: String(book.publisher ?? ""),
         year: book.year ? Number(book.year) : "",
         category: String(book.category ?? "Chưa phân loại"),
+        quantity: Number.isInteger(Number(book.quantity)) && Number(book.quantity) > 0 ? Number(book.quantity) : 5,
         coverUrl: normalizeCoverUrl(book.coverUrl) || "",
       }));
     const needsMetadataMigration = window.localStorage.getItem(SAMPLE_METADATA_MIGRATION_KEY) !== "done";
@@ -357,6 +358,7 @@ const ui = {
   dialogTitle: $("#book-dialog-title"), dialogEyebrow: $("#dialog-eyebrow"),
   isbn: $("#isbn-input"), title: $("#title-input"), author: $("#author-input"),
   publisher: $("#publisher-input"), year: $("#year-input"), categoryInput: $("#category-input"),
+  quantityInput: $("#quantity-input"),
   coverUrl: $("#cover-url-input"),
   categoryOptions: $("#category-options"), formError: $("#form-error"), saveButton: $("#save-book-button"),
   deleteDialog: $("#delete-dialog"), deleteCopy: $("#delete-dialog-copy"),
@@ -868,8 +870,20 @@ function pendingBorrowRequests(isbn) {
 function isOverdue(loan) {
   return !loan.returnedOn && loan.dueDate < localDateISO(new Date());
 }
+function getBookQuantity(book) {
+  const val = Number(book?.quantity);
+  return Number.isInteger(val) && val > 0 ? val : 5;
+}
+function availableCopies(isbn) {
+  const book = bst.find(isbn);
+  if (!book) return 0;
+  const total = getBookQuantity(book);
+  const activeCount = activeLoans().filter((loan) => loan.isbn === isbn).length;
+  const pendingCount = pendingBorrowRequests(isbn).length;
+  return Math.max(0, total - activeCount - pendingCount);
+}
 function bookIsAvailable(isbn) {
-  return !activeLoans().some((loan) => loan.isbn === isbn) && !pendingBorrowRequests(isbn).length;
+  return availableCopies(isbn) > 0;
 }
 function formatDate(value) {
   if (!value) return "—";
@@ -948,9 +962,12 @@ function spineTheme(category) {
   return "spine-default";
 }
 function bookAvailabilityMarkup(isbn) {
-  if (activeLoans().some((loan) => loan.isbn === isbn)) return '<span class="status-chip is-loaned">Đang mượn</span>';
-  if (pendingBorrowRequests(isbn).length) return '<span class="status-chip is-pending">Chờ duyệt</span>';
-  return '<span class="status-chip is-available">Có sẵn</span>';
+  const book = bst.find(isbn);
+  const total = getBookQuantity(book);
+  const remaining = availableCopies(isbn);
+  if (remaining <= 0) return '<span class="status-chip is-loaned">Hết sách (0/' + total + ')</span>';
+  if (remaining < total) return '<span class="status-chip is-available">Còn ' + remaining + '/' + total + '</span>';
+  return '<span class="status-chip is-available">Có sẵn (' + total + '/' + total + ')</span>';
 }
 function borrowerRequestAction(book) {
   if (currentUser?.role !== "borrower") return "";
@@ -959,9 +976,7 @@ function borrowerRequestAction(book) {
   if (ownActiveLoan) return '<button class="request-action" type="button" disabled>Đang mượn</button>';
   const ownPending = borrowRequests.some((request) => request.isbn === book.isbn && request.readerId === currentUser.readerId && request.status === "pending");
   if (ownPending) return '<button class="request-action" type="button" disabled>Chờ duyệt</button>';
-  if (activeLoans().some((loan) => loan.isbn === book.isbn)) return '<button class="request-action" type="button" disabled>Đang mượn</button>';
-  if (pendingBorrowRequests(book.isbn).length) return '<button class="request-action" type="button" disabled>Chờ duyệt</button>';
-  if (!bookIsAvailable(book.isbn)) return '<button class="request-action" type="button" disabled>Chưa có sẵn</button>';
+  if (!bookIsAvailable(book.isbn)) return '<button class="request-action" type="button" disabled>Hết sách</button>';
   return '<button class="request-action" type="button" data-request-book="' + escapeHTML(book.isbn) + '" aria-label="Yêu cầu mượn ' + escapedTitle + '">Yêu cầu mượn</button>';
 }
 function isFavorite(isbn) {
@@ -1467,6 +1482,7 @@ function openBookDialog(book, trigger) {
   ui.publisher.value = book ? book.publisher : "";
   ui.year.value = book ? book.year : "";
   ui.categoryInput.value = book ? book.category : "";
+  ui.quantityInput.value = book ? getBookQuantity(book) : 5;
   ui.coverUrl.value = book ? (book.coverUrl || "") : "";
   ui.bookDialog.showModal();
   window.requestAnimationFrame(() => (book ? ui.title : ui.isbn).focus());
@@ -1480,6 +1496,12 @@ function submitBook() {
   const title = ui.title.value.trim();
   const author = ui.author.value.trim();
   const yearValue = ui.year.value.trim();
+  const quantityInput = ui.quantityInput.value.trim();
+  const quantity = quantityInput ? Number(quantityInput) : 5;
+  if (!Number.isInteger(quantity) || quantity < 1 || quantity > 999) {
+    showFormError("Số lượng sách cần là số nguyên từ 1 đến 999.", ui.quantityInput);
+    return;
+  }
   const coverUrlInput = ui.coverUrl.value.trim();
   const coverUrl = normalizeCoverUrl(coverUrlInput);
   const isUnchangedLegacyISBN = editingISBN === isbn && validISBNShape(isbn);
@@ -1513,6 +1535,7 @@ function submitBook() {
     publisher: ui.publisher.value.trim(),
     year,
     category: ui.categoryInput.value.trim() || "Chưa phân loại",
+    quantity,
     coverUrl: coverUrl || "",
   };
   if (editingISBN) {
@@ -1539,10 +1562,11 @@ function openDeleteDialog(book, trigger) {
 function deleteBook() {
   if (!requireAdmin()) return;
   if (!deletingISBN) return;
-  if (!bookIsAvailable(deletingISBN)) {
-    const hasPendingRequest = pendingBorrowRequests(deletingISBN).length > 0;
+  const hasActiveLoan = activeLoans().some((loan) => loan.isbn === deletingISBN);
+  const hasPendingRequest = pendingBorrowRequests(deletingISBN).length > 0;
+  if (hasActiveLoan || hasPendingRequest) {
     ui.deleteDialog.close();
-    showToast(hasPendingRequest ? "Không thể xóa sách đang có yêu cầu mượn chờ duyệt." : "Không thể xóa sách đang được mượn. Hãy ghi nhận trả sách trước.", true);
+    showToast(hasPendingRequest ? "Không thể xóa sách đang có yêu cầu mượn chờ duyệt." : "Không thể xóa sách đang có bản sao được mượn. Hãy ghi nhận trả sách trước.", true);
     deletingISBN = null;
     return;
   }
@@ -1588,7 +1612,7 @@ function openLoanDialog() {
     .sort((a, b) => a.name.localeCompare(b.name, "vi"))
     .map((reader) => `<option value="${escapeHTML(reader.id)}">${escapeHTML(reader.name)} (${escapeHTML(reader.id)})</option>`).join("");
   ui.loanBook.innerHTML = '<option value="">Chọn đầu sách</option>' + available
-    .map((book) => `<option value="${escapeHTML(book.isbn)}">${escapeHTML(book.title)} — ${escapeHTML(book.isbn)}</option>`).join("");
+    .map((book) => `<option value="${escapeHTML(book.isbn)}">${escapeHTML(book.title)} — còn ${availableCopies(book.isbn)}/${getBookQuantity(book)} cuốn</option>`).join("");
   const due = new Date();
   due.setDate(due.getDate() + 14);
   ui.loanDue.value = localDateISO(due);
@@ -1693,8 +1717,11 @@ function approveBorrowRequest(id) {
     showToast("Không thể duyệt vì sách hoặc hồ sơ độc giả không còn tồn tại.", true);
     return;
   }
-  if (activeLoans().some((loan) => loan.isbn === request.isbn)) {
-    showToast("Sách đã được cho mượn. Hãy từ chối yêu cầu này.", true);
+  const book = bst.find(request.isbn);
+  const total = getBookQuantity(book);
+  const activeCount = activeLoans().filter((loan) => loan.isbn === request.isbn).length;
+  if (activeCount >= total) {
+    showToast("Tất cả bản sao của sách đã được cho mượn. Hãy từ chối yêu cầu này.", true);
     return;
   }
   const borrowedOn = localDateISO(new Date());
@@ -1760,8 +1787,8 @@ function csvCell(value) {
 }
 function exportBooksCSV() {
   if (!requireStaff()) return;
-  const header = ["ISBN", "Nhan đề", "Tác giả", "Nhà xuất bản", "Năm xuất bản", "Thể loại", "URL ảnh bìa nhà xuất bản"];
-  const rows = bst.traverse("LNR").map((book) => [book.isbn, book.title, book.author, book.publisher, book.year, book.category, book.coverUrl || ""]);
+  const header = ["ISBN", "Nhan đề", "Tác giả", "Nhà xuất bản", "Năm xuất bản", "Thể loại", "Số lượng", "URL ảnh bìa nhà xuất bản"];
+  const rows = bst.traverse("LNR").map((book) => [book.isbn, book.title, book.author, book.publisher, book.year, book.category, getBookQuantity(book), book.coverUrl || ""]);
   const csv = "\uFEFF" + [header, ...rows].map((row) => row.map(csvCell).join(",")).join("\r\n");
   const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
   const anchor = document.createElement("a");
@@ -1813,6 +1840,7 @@ async function importBooksCSV(file) {
     const columns = {
       isbn: findColumn("isbn"), title: findColumn("nhande", "nhane", "title"), author: findColumn("tacgia", "author"),
       publisher: findColumn("nhaxuatban", "publisher"), year: findColumn("namxuatban", "nam", "year"), category: findColumn("theloai", "category"),
+      quantity: findColumn("soluong", "soluongbandoc", "quantity", "copies"),
       coverUrl: findColumn("urlanhbia", "urlanhbianhaxuatban", "anhbia", "anhbianhaxuatban", "coverurl", "coverimageurl", "imageurl", "cover"),
     };
     if ([columns.isbn, columns.title, columns.author].some((index) => index < 0)) {
@@ -1828,6 +1856,9 @@ async function importBooksCSV(file) {
       const author = value(columns.author);
       const yearText = value(columns.year);
       const year = yearText ? Number(yearText) : "";
+      const quantityText = value(columns.quantity);
+      const quantityNum = quantityText ? Number(quantityText) : 5;
+      const quantity = Number.isInteger(quantityNum) && quantityNum > 0 ? quantityNum : 5;
       const coverUrlText = value(columns.coverUrl);
       const coverUrl = normalizeCoverUrl(coverUrlText);
       if (!validISBN(isbn) || existing.has(isbn) || !title || !author ||
@@ -1836,7 +1867,7 @@ async function importBooksCSV(file) {
         return;
       }
       existing.add(isbn);
-      books.push({ isbn, title, author, publisher: value(columns.publisher), year, category: value(columns.category) || "Chưa phân loại", coverUrl: coverUrl || "" });
+      books.push({ isbn, title, author, publisher: value(columns.publisher), year, category: value(columns.category) || "Chưa phân loại", quantity, coverUrl: coverUrl || "" });
       imported += 1;
     });
     if (!imported) throw new Error(`Không có dòng hợp lệ để nhập; đã bỏ qua ${skipped} dòng.`);
