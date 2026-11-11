@@ -168,11 +168,12 @@
           </p>
         </div>
 
-        <div class="demo-credentials" hidden aria-hidden="true">
-          <span class="demo-label">Tài khoản dùng thử</span>
+        <div class="demo-credentials" id="demo-credentials">
+          <span class="demo-label">Tài khoản dùng thử (bấm để điền nhanh)</span>
           <div class="demo-account-list">
-            <p><strong>Quản trị viên</strong><span><code>admin</code> / <code>123456</code></span></p>
-            <p><strong>Người mượn</strong><span><code>docgia</code> / <code>123456</code></span></p>
+            <p data-fill-account="admin"><strong>Quản trị viên</strong><span><code>admin</code> / <code>123456</code></span></p>
+            <p data-fill-account="thuthu"><strong>Thủ thư</strong><span><code>thuthu</code> / <code>123456</code></span></p>
+            <p data-fill-account="docgia"><strong>Độc giả</strong><span><code>docgia</code> / <code>123456</code></span></p>
           </div>
         </div>
         <p class="login-disclaimer">Hệ thống Quản lý Danh mục Thư viện — Cấu trúc dữ liệu & Giải thuật</p>
@@ -221,7 +222,7 @@
             </svg>
             <span>Cây BST</span>
           </button>
-          <button class="nav-item" type="button" data-view="circulation" data-required-role="admin">
+          <button class="nav-item" type="button" data-view="circulation" data-required-role="admin,librarian">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7.5h16v12H4zM8 7.5V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2.5M8 12h8m-8 3h5" /></svg>
             <span>Mượn / trả</span>
           </button>
@@ -229,7 +230,7 @@
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4.5h12v16H6zM9 8h6M9 12h6m-6 4h4M9 2.5h6" /></svg>
             <span>Lịch sử mượn của tôi</span>
           </button>
-          <button class="nav-item" type="button" data-view="analytics" data-required-role="admin">
+          <button class="nav-item" type="button" data-view="analytics" data-required-role="admin,librarian">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19.5h16M6.5 16V10m5 6V5m5 11v-8" /></svg>
             <span>Thống kê</span>
           </button>
@@ -274,8 +275,8 @@
             <div class="catalog-actions">
               <button class="button button-secondary" id="import-books-button" type="button" data-required-role="admin">Nhập CSV</button>
               <input class="visually-hidden" id="import-books-input" type="file" accept=".csv,text/csv" />
-              <button class="button button-secondary" id="export-books-button" type="button" data-required-role="admin">Xuất CSV</button>
-              <button class="button button-primary" id="add-book-button" type="button" data-required-role="admin">
+              <button class="button button-secondary" id="export-books-button" type="button" data-required-role="admin,librarian">Xuất CSV</button>
+              <button class="button button-primary" id="add-book-button" type="button" data-required-role="admin,librarian">
                 <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 4v12M4 10h12" /></svg>
                 <span>Thêm đầu sách</span>
               </button>
@@ -410,7 +411,7 @@
                 </span>
                 <h3 id="empty-title">Chưa có sách phù hợp</h3>
                 <p id="empty-copy">Thử một từ khóa khác hoặc thêm đầu sách mới.</p>
-                <button class="button button-secondary" id="empty-add-button" type="button" data-required-role="admin">Thêm đầu sách</button>
+                <button class="button button-secondary" id="empty-add-button" type="button" data-required-role="admin,librarian">Thêm đầu sách</button>
               </div>
             </div>
 
@@ -493,8 +494,8 @@
               <p class="intro-copy">Theo dõi người mượn, hạn trả và tình trạng từng đầu sách.</p>
             </div>
             <div class="catalog-actions">
-              <button class="button button-secondary" id="add-reader-button" type="button" data-required-role="admin">Thêm độc giả</button>
-              <button class="button button-primary" id="add-loan-button" type="button" data-required-role="admin">Lập phiếu mượn</button>
+              <button class="button button-secondary" id="add-reader-button" type="button" data-required-role="admin,librarian">Thêm độc giả</button>
+              <button class="button button-primary" id="add-loan-button" type="button" data-required-role="admin,librarian">Lập phiếu mượn</button>
             </div>
           </div>
 

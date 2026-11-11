@@ -13,6 +13,7 @@ const AUTH_SESSION_KEY = "muc-luc-library-demo-user-v1";
 const REGISTERED_ACCOUNTS_KEY = "muc-luc-library-registered-accounts-v1";
 const DEMO_ACCOUNTS = {
   admin: { username: "admin", password: "123456", role: "admin", roleLabel: "Quản trị viên" },
+  thuthu: { username: "thuthu", password: "123456", role: "librarian", roleLabel: "Thủ thư", staffId: "TT-001" },
   docgia: { username: "docgia", password: "123456", role: "borrower", roleLabel: "Người mượn", readerId: "DG-DEMO-001" },
 };
 
@@ -395,6 +396,7 @@ applyTheme(readPreference(THEME_STORAGE_KEY, "light"));
 function getAccountInitials(account) {
   if (!account) return "DG";
   if (account.role === "admin") return "AD";
+  if (account.role === "librarian") return "TT";
   const name = account.fullname || (account.readerId ? getReaderName(account.readerId) : "") || account.username || "";
   const words = name.trim().split(/\s+/).filter(Boolean);
   if (words.length >= 2) {
@@ -416,7 +418,7 @@ function setAuthenticated(username) {
   $(".skip-link").href = authenticated ? "#main-content" : "#login-username";
   applyRolePermissions();
   if (authenticated) {
-    ui.accountName.textContent = currentUser.role === "admin" ? currentUser.username : (currentUser.fullname || getReaderName(currentUser.readerId));
+    ui.accountName.textContent = currentUser.role === "admin" || currentUser.role === "librarian" ? currentUser.username : (currentUser.fullname || getReaderName(currentUser.readerId));
     ui.roleBadge.textContent = currentUser.roleLabel;
     ui.profileMark.textContent = getAccountInitials(currentUser);
     document.title = "Mục lục — Thư viện học đường";
@@ -431,17 +433,37 @@ function isAdmin() {
   return currentUser?.role === "admin";
 }
 
+function isLibrarian() {
+  return currentUser?.role === "librarian";
+}
+
+function isStaff() {
+  return currentUser?.role === "admin" || currentUser?.role === "librarian";
+}
+
 function requireAdmin() {
   if (isAdmin()) return true;
   showToast("Chức năng này chỉ dành cho quản trị viên.", true);
   return false;
 }
 
+function requireStaff() {
+  if (isStaff()) return true;
+  showToast("Chức năng này chỉ dành cho thủ thư hoặc quản trị viên.", true);
+  return false;
+}
+
 function applyRolePermissions() {
   document.querySelectorAll("[data-required-role]").forEach((element) => {
-    element.hidden = !currentUser || element.dataset.requiredRole !== currentUser.role;
+    const roles = (element.dataset.requiredRole || "").split(",").map((r) => r.trim());
+    element.hidden = !currentUser || !roles.includes(currentUser.role);
   });
-  const adminControls = ["#add-book-button", "#import-books-button", "#export-books-button", "#empty-add-button", "#add-reader-button", "#add-loan-button", "#reset-sample-button"];
+  const staffControls = ["#add-book-button", "#export-books-button", "#empty-add-button", "#add-reader-button", "#add-loan-button"];
+  staffControls.forEach((selector) => {
+    const element = $(selector);
+    if (element) element.hidden = !isStaff();
+  });
+  const adminControls = ["#import-books-button", "#reset-sample-button"];
   adminControls.forEach((selector) => {
     const element = $(selector);
     if (element) element.hidden = !isAdmin();
@@ -878,7 +900,7 @@ function renderStats() {
   ui.navCount.textContent = books.length.toLocaleString("vi-VN");
 }
 function renderManagementStats() {
-  if (!isAdmin()) {
+  if (!isStaff()) {
     [ui.activeLoansCount, ui.overdueLoansCount, ui.readersCount, ui.availableBooksCount, ui.analyticsBooks, ui.analyticsActive, ui.analyticsReturned, ui.analyticsOverdue]
       .forEach((element) => { element.textContent = "—"; });
     return;
@@ -952,13 +974,16 @@ function favoriteButtonMarkup(book) {
   return `<button class="icon-button favorite-button${selected ? " is-favorite" : ""}" type="button" data-toggle-favorite="${escapeHTML(book.isbn)}" aria-label="${escapeHTML(label)}" aria-pressed="${selected}" title="${escapeHTML(label)}"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m10 2.7 2.2 4.5 5 .7-3.6 3.5.9 5-4.5-2.4-4.5 2.4.9-5-3.6-3.5 5-.7L10 2.7Z" /></svg></button>`;
 }
 function bookActionMarkup(book, includeAdminActions = true) {
-  if (isAdmin() && includeAdminActions) {
+  if (isStaff() && includeAdminActions) {
     const isbn = escapeHTML(book.isbn);
     const title = escapeHTML(book.title);
-    return '<button class="icon-button edit-action" type="button" data-action="edit" data-isbn="' + isbn + '" aria-label="Sửa ' + title + '" title="Sửa đầu sách">' +
-      '<svg viewBox="0 0 20 20" aria-hidden="true"><path d="m12.8 4.2 3 3M4 16l3.4-.7L16 6.7a1.8 1.8 0 0 0-2.5-2.5l-8.6 8.6L4 16Z" /></svg></button>' +
-      '<button class="icon-button delete-action" type="button" data-action="delete" data-isbn="' + isbn + '" aria-label="Xóa ' + title + '" title="Xóa đầu sách">' +
-      '<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 5.5h12M7.5 5.5V3.8h5v1.7m-6.8 0 .8 10.7h7l.8-10.7M8.3 8.2v5.3m3.4-5.3v5.3" /></svg></button>';
+    let html = '<button class="icon-button edit-action" type="button" data-action="edit" data-isbn="' + isbn + '" aria-label="Sửa ' + title + '" title="Sửa đầu sách">' +
+      '<svg viewBox="0 0 20 20" aria-hidden="true"><path d="m12.8 4.2 3 3M4 16l3.4-.7L16 6.7a1.8 1.8 0 0 0-2.5-2.5l-8.6 8.6L4 16Z" /></svg></button>';
+    if (isAdmin()) {
+      html += '<button class="icon-button delete-action" type="button" data-action="delete" data-isbn="' + isbn + '" aria-label="Xóa ' + title + '" title="Xóa đầu sách">' +
+        '<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 5.5h12M7.5 5.5V3.8h5v1.7m-6.8 0 .8 10.7h7l.8-10.7M8.3 8.2v5.3m3.4-5.3v5.3" /></svg></button>';
+    }
+    return html;
   }
   if (currentUser?.role === "borrower") return favoriteButtonMarkup(book) + borrowerRequestAction(book);
   return "";
@@ -1201,7 +1226,7 @@ function renderTree() {
     edges.join("") + nodes;
 }
 function renderLoans() {
-  if (!isAdmin()) {
+  if (!isStaff()) {
     ui.loanRows.replaceChildren();
     $("#loan-rows").closest("table").hidden = true;
     ui.loanEmpty.textContent = "";
@@ -1221,7 +1246,8 @@ function renderLoans() {
       : isOverdue(loan)
         ? '<span class="status-chip is-overdue">Quá hạn</span>'
         : '<span class="status-chip is-loaned">Đang mượn</span>';
-    const action = loan.returnedOn ? "" : `<button class="text-action" type="button" data-return-loan="${escapeHTML(loan.id)}">Ghi nhận trả</button>`;
+    // Thủ thư: ghi nhận trả sách; chỉ admin mới duyệt/từ chối yêu cầu
+  const action = loan.returnedOn ? "" : `<button class="text-action" type="button" data-return-loan="${escapeHTML(loan.id)}">Ghi nhận trả</button>`;
     return `<tr><td data-label="Đầu sách"><span class="loan-book-name">${escapeHTML(getBookTitle(loan.isbn))}</span><code class="isbn-code">${escapeHTML(loan.isbn)}</code></td>` +
       `<td data-label="Độc giả">${escapeHTML(getReaderName(loan.readerId))}</td><td data-label="Ngày mượn">${formatDate(loan.borrowedOn)}</td>` +
       `<td data-label="Hạn trả">${formatDate(loan.dueDate)}${loan.returnedOn ? `<small class="returned-date">Đã trả ${formatDate(loan.returnedOn)}</small>` : ""}</td>` +
@@ -1234,7 +1260,7 @@ function renderLoans() {
 }
 
 function renderBorrowRequests() {
-  if (!isAdmin()) {
+  if (!isStaff()) {
     ui.requestRows.replaceChildren();
     ui.requestEmpty.hidden = true;
     ui.requestRows.closest("table").hidden = true;
@@ -1253,9 +1279,9 @@ function renderBorrowRequests() {
       : request.status === "approved"
         ? '<span class="status-chip is-available">Đã duyệt</span>'
         : '<span class="status-chip is-rejected">Đã từ chối</span>';
-    const actions = request.status === "pending"
+    const actions = request.status === "pending" && isAdmin()
       ? `<div class="request-review-actions"><button class="text-action" type="button" data-approve-request="${escapeHTML(request.id)}">Duyệt</button><button class="text-action is-danger" type="button" data-reject-request="${escapeHTML(request.id)}">Từ chối</button></div>`
-      : "—";
+      : request.status === "pending" ? '<span class="status-chip is-pending">Chờ duyệt</span>' : "—";
     return `<tr><td data-label="Đầu sách"><span class="loan-book-name">${escapeHTML(getBookTitle(request.isbn))}</span><code class="isbn-code">${escapeHTML(request.isbn)}</code></td>` +
       `<td data-label="Độc giả">${escapeHTML(getReaderName(request.readerId))}</td><td data-label="Ngày yêu cầu">${formatDate(request.requestedOn)}</td>` +
       `<td data-label="Trạng thái">${status}</td><td data-label="Thao tác">${actions}</td></tr>`;
@@ -1313,7 +1339,7 @@ function renderMyLoans() {
 }
 
 function renderReaders() {
-  if (!isAdmin()) {
+  if (!isStaff()) {
     ui.readerRows.replaceChildren();
     $("#reader-rows").closest("table").hidden = true;
     ui.readerEmpty.hidden = true;
@@ -1333,7 +1359,7 @@ function renderReaders() {
 }
 
 function renderAnalytics() {
-  if (!isAdmin()) {
+  if (!isStaff()) {
     ui.categoryChart.replaceChildren();
     ui.popularList.replaceChildren();
     ui.popularEmpty.hidden = true;
@@ -1366,7 +1392,7 @@ function renderAll() {
   renderStats();
   renderCatalog();
   renderManagementStats();
-  if (isAdmin()) {
+  if (isStaff()) {
     renderLoans();
     renderBorrowRequests();
     renderReaders();
@@ -1389,8 +1415,9 @@ function renderAll() {
 }
 function canAccessView(view) {
   if (currentUser?.role === "admin") return ["catalog", "tree", "circulation", "analytics"].includes(view);
+  if (currentUser?.role === "admin") return ["catalog", "tree", "circulation", "analytics"].includes(view);
+  if (currentUser?.role === "librarian") return ["catalog", "circulation", "analytics"].includes(view);
   if (currentUser?.role === "borrower") return ["catalog", "my-loans"].includes(view);
-  return view === "catalog";
 }
 function switchView(view) {
   if (!canAccessView(view)) view = "catalog";
@@ -1425,7 +1452,7 @@ function clearFormError() {
   ui.formError.hidden = true;
 }
 function openBookDialog(book, trigger) {
-  if (!requireAdmin()) return;
+  if (!requireStaff()) return;
   editingISBN = book ? book.isbn : null;
   returnFocus = trigger || $("#add-book-button");
   ui.form.reset();
@@ -1448,7 +1475,7 @@ function closeBookDialog() {
   if (ui.bookDialog.open) ui.bookDialog.close();
 }
 function submitBook() {
-  if (!requireAdmin()) return;
+  if (!requireStaff()) return;
   const isbn = normalizeISBN(ui.isbn.value);
   const title = ui.title.value.trim();
   const author = ui.author.value.trim();
@@ -1536,7 +1563,7 @@ function localDateISO(date) {
   return `${year}-${month}-${day}`;
 }
 function openReaderDialog() {
-  if (!requireAdmin()) return;
+  if (!requireStaff()) return;
   ui.readerForm.reset();
   ui.readerFormError.hidden = true;
   ui.readerFormError.textContent = "";
@@ -1544,7 +1571,7 @@ function openReaderDialog() {
   ui.readerName.focus();
 }
 function openLoanDialog() {
-  if (!requireAdmin()) return;
+  if (!requireStaff()) return;
   if (!readers.length) {
     showToast("Hãy thêm độc giả trước khi lập phiếu mượn.", true);
     return;
@@ -1570,7 +1597,7 @@ function openLoanDialog() {
 }
 function saveReader(event) {
   event.preventDefault();
-  if (!requireAdmin()) return;
+  if (!requireStaff()) return;
   const name = ui.readerName.value.trim();
   if (!name) {
     ui.readerFormError.textContent = "Hãy nhập họ và tên độc giả.";
@@ -1598,7 +1625,7 @@ function saveReader(event) {
 }
 function saveLoan(event) {
   event.preventDefault();
-  if (!requireAdmin()) return;
+  if (!requireStaff()) return;
   const readerId = ui.loanReader.value;
   const isbn = normalizeISBN(ui.loanBook.value);
   const dueDate = ui.loanDue.value;
@@ -1697,7 +1724,7 @@ function rejectBorrowRequest(id) {
   showToast("Đã từ chối yêu cầu mượn sách.");
 }
 function returnLoan(id) {
-  if (!requireAdmin()) return;
+  if (!requireStaff()) return;
   const loan = loans.find((item) => item.id === id && !item.returnedOn);
   if (!loan) return;
   loan.returnedOn = localDateISO(new Date());
@@ -1732,7 +1759,7 @@ function csvCell(value) {
   return /[",\r\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
 }
 function exportBooksCSV() {
-  if (!requireAdmin()) return;
+  if (!requireStaff()) return;
   const header = ["ISBN", "Nhan đề", "Tác giả", "Nhà xuất bản", "Năm xuất bản", "Thể loại", "URL ảnh bìa nhà xuất bản"];
   const rows = bst.traverse("LNR").map((book) => [book.isbn, book.title, book.author, book.publisher, book.year, book.category, book.coverUrl || ""]);
   const csv = "\uFEFF" + [header, ...rows].map((row) => row.map(csvCell).join(",")).join("\r\n");
@@ -1965,6 +1992,17 @@ window.addEventListener("storage", (event) => {
 });
 
 if (needsDemoReaderSeed) persistRecords(READERS_STORAGE_KEY, readers);
+document.querySelectorAll("[data-fill-account]").forEach((row) => {
+  row.style.cursor = "pointer";
+  row.addEventListener("click", () => {
+    const acc = DEMO_ACCOUNTS[row.dataset.fillAccount];
+    if (!acc) return;
+    ui.loginUsername.value = acc.username;
+    ui.loginPassword.value = acc.password;
+    ui.loginUsername.form.requestSubmit();
+  });
+});
+
 setAuthenticated(readAuthenticatedUser());
 const requestedView = window.location.hash.slice(1);
 switchView(["catalog", "tree", "circulation", "my-loans", "analytics"].includes(requestedView) ? requestedView : "catalog");
