@@ -34,3 +34,6 @@ __pycache__/
 # Local-only data and credentials
 data/private/
 .env
+
+# Local agent config
+AGENTS.md
